@@ -9,11 +9,8 @@ struct Bone {
 };
 std::vector<struct Bone *> bones;
 
-
-float radius = 0.1;
-float delta = 0.001;
-float initPos1 = 0.6;
-float initPos2 = 0.3;
+float delta = 0.1;
+float rot = 0.0;
 
 void makeBones() {
     bones = std::vector<struct Bone *>();
@@ -33,44 +30,37 @@ void makeBones() {
     bones.push_back(b);
 }
 
+void drawBone(struct Bone *bone) {
+    glPushMatrix();
+    if (bone->parent) {
+        glTranslatef(bone->parent->x0, bone->parent->y0, 0.0);
+        glRotatef(rot, 0.0, 0.0, 1.0);
+        glTranslatef(-1*bone->parent->x0, -1*bone->parent->y0, 0.0);
+    }
+
+    glBegin(GL_LINES);
+    if (!bone->parent) {
+        glVertex2f(bone->x0, bone->y0);
+        glVertex2f(bone->x1, bone->y1);
+    } else {
+        glColor3f(0.6f,0.2f,0.6f);
+        glVertex2f(bone->parent->x0, bone->parent->y0);
+        glVertex2f(bone->x1, bone->y1);
+    }
+    glEnd();
+    glPopMatrix();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-
-    initPos1 += delta;
-    initPos2 += delta;
-
-    // glBegin(GL_LINE_LOOP);
-    //     for(int i = 0; i < 100; i++) {
-    //         float angle = 2*M_PI*i/100;
-    //         glVertex2f(radius*cos(angle)+initPos1, radius*sin(angle)+initPos1);
-    //     }
-    // glEnd();
-    // glBegin(GL_LINE_LOOP);
-    //     for(int i = 0; i < 100; i++) {
-    //         float angle = 2*M_PI*i/100;
-    //         glVertex2f(radius*cos(angle)+initPos2, radius*sin(angle)+initPos2);
-    //     }
-    // glEnd();
-    // glBegin(GL_LINES);
-    //     glVertex2f(initPos1, initPos1);
-    //     glVertex2f(initPos2, initPos2);
-    // glEnd();
-
-    glBegin(GL_LINES);
-        for(int i = 0; i < bones.size(); i++) {
-            struct Bone *bone = bones.at(i);
-            if (!bone->parent) {
-                glVertex2f(bone->x0, bone->y0);
-                glVertex2f(bone->x1, bone->y1);
-            } else {
-                glVertex2f(bone->parent->x0, bone->parent->y0);
-                glVertex2f(bone->x1, bone->y1);
-            }
-        }
-    glEnd();
+    rot += delta;
+    for(int i = 0; i < bones.size(); i++) {
+        struct Bone *bone = bones.at(i);
+        drawBone(bone);
+    }
     glFlush();
-    // glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 void init() {
