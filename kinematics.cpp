@@ -4,68 +4,71 @@
 #include <iostream>
 
 struct Bone {
-    float x0, y0, x1, y1;
-    struct Bone *parent;
+    float x0, y0, angle, len;
+    struct Bone *children[5];
+    int numChildren;
 };
 std::vector<struct Bone *> bones;
 
 float rotDelta = 0.1;
-float rot = 0.0;
 float transDelta = 0.001;
-float offset_x = 0.0;
-float offset_y = 0.0;
 
+// first bone is root
 void makeBones() {
     bones = std::vector<struct Bone *>();
     struct Bone *a = new struct Bone;
-    a->x0 = 0.5;
-    a->y0 = 0.5;
-    a->x1 = 0.7;
-    a->y1 = 0.7;
-    a->parent = NULL;
-    bones.push_back(a);
     struct Bone *b = new struct Bone;
+    struct Bone *c = new struct Bone;
+    a->x0 = 0.3;
+    a->y0 = 0.3;
+    a->angle = 20.0;
+    a->len = 0.2;
+    a->children[0] = b;
+    a->numChildren++;
+
     b->x0 = 0.0;
     b->y0 = 0.0;
-    b->x1 = 0.3;
-    b->y1 = 0.3;
-    b->parent = a;
+    b->angle = 40.0;
+    b->len = 0.2;
+    b->children[0] = c;
+    b->numChildren++;
+
+    c->x0 = 0.0;
+    c->y0 = 0.0;
+    c->angle = 10.0;
+    c->len = 0.1;
+    bones.push_back(a);
     bones.push_back(b);
+    bones.push_back(c);
 }
 
-void drawBone(struct Bone *bone) {
-    glPushMatrix();
-    glTranslatef(offset_x, offset_y, 0.0);
-    if (bone->parent) {
-        glTranslatef(bone->parent->x0, bone->parent->y0, 0.0);
-        glRotatef(rot, 0.0, 0.0, 1.0);
-        glTranslatef(-1*bone->parent->x0, -1*bone->parent->y0, 0.0);
+void drawBone(struct Bone *bone, bool isRoot) {
+    bone->angle += rotDelta;
+    if(isRoot) {
+        bone->x0 += transDelta;
+        bone->y0 += transDelta;
     }
+    glPushMatrix();
+    glTranslatef(bone->x0, bone->y0, 0.0);
+    glRotatef(bone->angle, 0.0, 0.0, 1.0);
 
     glBegin(GL_LINES);
-    if (!bone->parent) {
-        glVertex2f(bone->x0, bone->y0);
-        glVertex2f(bone->x1, bone->y1);
-    } else {
-        glColor3f(0.6f,0.2f,0.6f);
-        glVertex2f(bone->parent->x0, bone->parent->y0);
-        glVertex2f(bone->x1, bone->y1);
-    }
+        glVertex2f(0.0, 0.0);
+        glVertex2f(bone->len, 0.0);
     glEnd();
+    glTranslatef(bone->len, 0.0, 0.0);
+
+    for(int i = 0; i < bone->numChildren; i++) {
+        drawBone(bone->children[i], false);
+    }
+
     glPopMatrix();
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-    rot += rotDelta;
-    offset_x += transDelta;
-    offset_y += transDelta;
-
-    for(int i = 0; i < bones.size(); i++) {
-        struct Bone *bone = bones.at(i);
-        drawBone(bone);
-    }
+    drawBone(bones.at(0), true);
     glFlush();
     glutPostRedisplay();
 }
