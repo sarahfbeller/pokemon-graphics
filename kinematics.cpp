@@ -10,10 +10,13 @@ struct Bone {
 };
 std::vector<struct Bone *> bones;
 
-float rotDelta = 0.1;
+// amount to add to rotation/translation with each frame / keystroke
+float rotDelta = 0.1; // in degrees
 float transDelta = 0.001;
 
-// first bone is root
+/* Currently makes upper arm, lower arm, and 5 hand bones;
+ * joints at elbow and wrist
+ * First bone added must be root */
 void makeBones() {
     bones = std::vector<struct Bone *>();
     struct Bone *a = new struct Bone;
@@ -86,6 +89,7 @@ void makeBones() {
     bones.push_back(g);
 }
 
+/* recursively draws each bone, then its children */
 void drawBone(struct Bone *bone, bool isRoot) {
     // // rotate entire structure
     // float newAngle = bone->angle + rotDelta;
@@ -110,7 +114,6 @@ void drawBone(struct Bone *bone, bool isRoot) {
     for(int i = 0; i < bone->numChildren; i++) {
         drawBone(bone->children[i], false);
     }
-
     glPopMatrix();
 }
 
@@ -122,6 +125,7 @@ void display() {
     glutPostRedisplay();
 }
 
+/* keystrokes to rotate each of the 3 bone segments */
 void keyFunc(unsigned char key, int x, int y) {
     if (key == 'd') { // rotate upper arm anticlockwise
         struct Bone * bone = bones[0];
