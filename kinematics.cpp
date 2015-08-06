@@ -49,11 +49,13 @@ void makeBones() {
 }
 
 void drawBone(struct Bone *bone, bool isRoot) {
-    float newAngle = bone->angle + rotDelta;
-    if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
-        bone->angle = newAngle;
-    }
-    // if(isRoot) { // translate entire structure
+    // // rotate entire structure
+    // float newAngle = bone->angle + rotDelta;
+    // if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+    //     bone->angle = newAngle;
+    // }
+    // // translate entire structure
+    // if(isRoot) {
     //     bone->x0 += transDelta;
     //     bone->y0 += transDelta;
     // }
@@ -82,6 +84,52 @@ void display() {
     glutPostRedisplay();
 }
 
+void keyFunc(unsigned char key, int x, int y) {
+    if (key == 'd') { // rotate upper arm anticlockwise
+        struct Bone * bone = bones[0];
+        float newAngle = bone->angle + rotDelta;
+        if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+            bone->angle = newAngle;
+        }
+        glutPostRedisplay();
+    } else if (key == 'f') { // rotate upper arm clockwise
+        struct Bone * bone = bones[0];
+        float newAngle = bone->angle - rotDelta;
+        if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+            bone->angle = newAngle;
+        }
+        glutPostRedisplay();
+    } else if (key == 'j') { // rotate lower arm anticlockwise
+        struct Bone * bone = bones[1];
+        float newAngle = bone->angle + rotDelta;
+        if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+            bone->angle = newAngle;
+        }
+        glutPostRedisplay();
+    } else if (key == 'k') { // rotate lower arm clockwise
+        struct Bone * bone = bones[1];
+        float newAngle = bone->angle - rotDelta;
+        if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+            bone->angle = newAngle;
+        }
+        glutPostRedisplay();      
+    } else if (key == 'u') { // rotate hand anticlockwise
+        struct Bone * bone = bones[2];
+        float newAngle = bone->angle + rotDelta;
+        if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+            bone->angle = newAngle;
+        } 
+        glutPostRedisplay();       
+    } else if (key == 'i') { // rotate hand clockwise
+        struct Bone * bone = bones[2];
+        float newAngle = bone->angle - rotDelta;
+        if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+            bone->angle = newAngle;
+        }  
+        glutPostRedisplay();      
+    }
+}
+
 void init() {
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glMatrixMode(GL_PROJECTION);
@@ -97,6 +145,7 @@ int main(int argc, char** argv) {
     glutInitWindowPosition(100, 100);
     glutCreateWindow("Kinematics");
     init();
+    glutKeyboardFunc(keyFunc);
     glutDisplayFunc(display); 
     glutMainLoop();
     return 0;
