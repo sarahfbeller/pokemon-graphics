@@ -9,8 +9,11 @@ struct Bone {
 };
 std::vector<struct Bone *> bones;
 
-float delta = 0.1;
+float rotDelta = 0.1;
 float rot = 0.0;
+float transDelta = 0.001;
+float offset_x = 0.0;
+float offset_y = 0.0;
 
 void makeBones() {
     bones = std::vector<struct Bone *>();
@@ -32,6 +35,7 @@ void makeBones() {
 
 void drawBone(struct Bone *bone) {
     glPushMatrix();
+    glTranslatef(offset_x, offset_y, 0.0);
     if (bone->parent) {
         glTranslatef(bone->parent->x0, bone->parent->y0, 0.0);
         glRotatef(rot, 0.0, 0.0, 1.0);
@@ -54,7 +58,10 @@ void drawBone(struct Bone *bone) {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-    rot += delta;
+    rot += rotDelta;
+    offset_x += transDelta;
+    offset_y += transDelta;
+
     for(int i = 0; i < bones.size(); i++) {
         struct Bone *bone = bones.at(i);
         drawBone(bone);
