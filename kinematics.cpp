@@ -4,7 +4,7 @@
 #include <iostream>
 
 struct Bone {
-    float x0, y0, angle, len;
+    float x0, y0, angle, len, minAngle, maxAngle;
     struct Bone *children[5];
     int numChildren;
 };
@@ -22,6 +22,8 @@ void makeBones() {
     a->x0 = 0.3;
     a->y0 = 0.3;
     a->angle = 20.0;
+    a->minAngle = -90.0;
+    a->maxAngle = 90.0;
     a->len = 0.2;
     a->children[0] = b;
     a->numChildren++;
@@ -29,6 +31,8 @@ void makeBones() {
     b->x0 = 0.0;
     b->y0 = 0.0;
     b->angle = 40.0;
+    b->minAngle = 0.0;
+    b->maxAngle = 135.0;
     b->len = 0.2;
     b->children[0] = c;
     b->numChildren++;
@@ -36,18 +40,23 @@ void makeBones() {
     c->x0 = 0.0;
     c->y0 = 0.0;
     c->angle = 10.0;
-    c->len = 0.1;
+    c->minAngle = -10.0;
+    c->maxAngle = 10.0;
+    c->len = 0.05;
     bones.push_back(a);
     bones.push_back(b);
     bones.push_back(c);
 }
 
 void drawBone(struct Bone *bone, bool isRoot) {
-    bone->angle += rotDelta;
-    if(isRoot) {
-        bone->x0 += transDelta;
-        bone->y0 += transDelta;
+    float newAngle = bone->angle + rotDelta;
+    if (newAngle >= bone->minAngle && newAngle <= bone->maxAngle) {
+        bone->angle = newAngle;
     }
+    // if(isRoot) { // translate entire structure
+    //     bone->x0 += transDelta;
+    //     bone->y0 += transDelta;
+    // }
     glPushMatrix();
     glTranslatef(bone->x0, bone->y0, 0.0);
     glRotatef(bone->angle, 0.0, 0.0, 1.0);
