@@ -5,10 +5,9 @@
 #include <iostream>
 
 struct Bone {
-    float x0, y0, len, wid; // starting point, length, and width of bone
+    float x0, y0, length, width; // starting point, length, and width of bone
     float angle, minAngle, maxAngle; // initial angle and limits of motion
-    struct Bone *children[5];
-    int numChildren;
+    std::vector<struct Bone *> children;
     RGBColor color;
 };
 std::vector<struct Bone *> bones; // bones[0] = root
@@ -16,6 +15,20 @@ std::vector<struct Bone *> bones; // bones[0] = root
 // amount to add to rotation/translation with each frame / keystroke
 float rotDelta = 0.1; // in degrees
 float transDelta = 0.001;
+
+void makeBone(struct Bone *bone, float x0, float y0, float length, float width,
+            float angle, float minAngle, float maxAngle,
+            std::vector<struct Bone *> children, RGBColor color) {
+    bone->x0 = x0;
+    bone->y0 = y0;
+    bone->angle = angle;
+    bone->minAngle = minAngle;
+    bone->maxAngle = maxAngle;
+    bone->length = length;
+    bone->width = width;
+    bone->children = children;
+    bone->color = color;
+}
 
 /* Currently makes upper arm, lower arm, and 5 hand bones;
  * joints at elbow and wrist
@@ -30,72 +43,30 @@ void makeBones() {
     struct Bone *f = new struct Bone;
     struct Bone *g = new struct Bone;
 
-    a->x0 = 0.3;
-    a->y0 = 0.3;
-    a->angle = 20.0;
-    a->minAngle = -90.0;
-    a->maxAngle = 90.0;
-    a->len = 0.35;
-    a->wid = 0.05;
-    a->color = RGBColor(0.5, 0.3, 0.6);
-    a->children[0] = b;
-    a->numChildren++;
-
-    b->x0 = 0.0;
-    b->y0 = 0.0;
-    b->angle = 40.0;
-    b->minAngle = 0.0;
-    b->maxAngle = 135.0;
-    b->len = 0.3;
-    b->wid = 0.05;
-    b->color = RGBColor(0.2, 0.8, 0.2);
-    b->children[0] = c;
-    b->children[1] = d;
-    b->children[2] = e;
-    b->children[3] = f;
-    b->children[4] = g;
-    b->numChildren += 5;
-
-    c->x0 = 0.0;
-    c->y0 = 0.0;
-    c->angle = 10.0;
-    c->minAngle = 0.0;
-    c->maxAngle = 20.0;
-    c->len = 0.05;
-    c->wid = 0.005;
-    c->color = RGBColor(0.8, 0.2, 0.2);
-    d->x0 = 0.0;
-    d->y0 = 0.0;
-    d->angle = 5.0;
-    d->minAngle = -5.0;
-    d->maxAngle = 15.0;
-    d->len = 0.05;
-    d->wid = 0.005;
-    d->color = RGBColor(0.8, 0.2, 0.2);
-    e->x0 = 0.0;
-    e->y0 = 0.0;
-    e->angle = 0.0;
-    e->minAngle = -10.0;
-    e->maxAngle = 10.0;
-    e->len = 0.05;
-    e->wid = 0.005;
-    e->color = RGBColor(0.8, 0.2, 0.2);
-    f->x0 = 0.0;
-    f->y0 = 0.0;
-    f->angle = -5.0;
-    f->minAngle = -15.0;
-    f->maxAngle = 5.0;
-    f->len = 0.05;
-    f->wid = 0.005;
-    f->color = RGBColor(0.8, 0.2, 0.2);
-    g->x0 = 0.0;
-    g->y0 = 0.0;
-    g->angle = -10.0;
-    g->minAngle = -20.0;
-    g->maxAngle = 0.0;
-    g->len = 0.05;
-    g->wid = 0.005;
-    g->color = RGBColor(0.8, 0.2, 0.2);
+    std::vector<struct Bone *> children;
+    children.push_back(b);
+    // upper arm
+    makeBone(a, 0.3, 0.3, 0.35, 0.05, 20.0, -90.0, 
+            90.0, children, RGBColor(0.5, 0.3, 0.6));
+    // lower arm
+    children[0] = c;
+    children.push_back(d);
+    children.push_back(e);
+    children.push_back(f);
+    children.push_back(g);
+    makeBone(b, 0.0, 0.0, 0.3, 0.05, 40.0, 0.0, 
+            135.0, children, RGBColor(0.2, 0.8, 0.2));
+    // fingers
+    makeBone(c, 0.0, 0.0, 0.05, 0.005, 10.0, 0.0, 
+            20.0, std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2));    
+    makeBone(d, 0.0, 0.0, 0.05, 0.005, 5.0, -5.0, 
+            15.0, std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
+    makeBone(e, 0.0, 0.0, 0.05, 0.005, 0.0, -10.0, 
+            10.0, std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
+    makeBone(f, 0.0, 0.0, 0.05, 0.005, -5.0, -15.0, 
+            5.0, std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
+    makeBone(g, 0.0, 0.0, 0.05, 0.005, -10.0, -20.0, 
+            0.0, std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
 
     bones.push_back(a);
     bones.push_back(b);
@@ -125,20 +96,20 @@ void drawBone(struct Bone *bone, bool isRoot) {
     // // makes bones as lines
     // glBegin(GL_LINES);
     //     glVertex2f(0.0, 0.0);
-    //     glVertex2f(bone->len, 0.0);
+    //     glVertex2f(bone->length, 0.0);
     // glEnd();
 
     // makes bones as rectangles
     glColor3f(bone->color.r, bone->color.g, bone->color.b);
     glBegin(GL_QUADS);
-        glVertex2f(0.0, -0.5*bone->wid);
-        glVertex2f(0.0, 0.5*bone->wid);
-        glVertex2f(bone->len, 0.5*bone->wid);
-        glVertex2f(bone->len, -0.5*bone->wid);
+        glVertex2f(0.0, -0.5*bone->width);
+        glVertex2f(0.0, 0.5*bone->width);
+        glVertex2f(bone->length, 0.5*bone->width);
+        glVertex2f(bone->length, -0.5*bone->width);
     glEnd();
-    glTranslatef(bone->len, 0.0, 0.0);
+    glTranslatef(bone->length, 0.0, 0.0);
 
-    for(int i = 0; i < bone->numChildren; i++) {
+    for(int i = 0; i < bone->children.size(); i++) {
         drawBone(bone->children[i], false);
     }
     glPopMatrix();
@@ -147,7 +118,7 @@ void drawBone(struct Bone *bone, bool isRoot) {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-    drawBone(bones.at(0), true);
+    drawBone(bones[0], true);
     glFlush();
     glutPostRedisplay();
 }
