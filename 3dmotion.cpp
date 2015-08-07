@@ -65,7 +65,7 @@ void makeBones() {
     children.push_back(b);
     // upper arm
     makeBone(a, 0.3, 0.3, 0.0, 0.35, 0.05, 0.0, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 20.0, -90.0, 90.0, 
+            0.0, 0.0, 135.0, 20.0, -90.0, 90.0, 
             children, RGBColor(0.5, 0.3, 0.6));
     // lower arm
     children[0] = c;
@@ -73,23 +73,23 @@ void makeBones() {
     children.push_back(e);
     children.push_back(f);
     children.push_back(g);
-    makeBone(b, 0.0, 0.0, 0.0, 0.3, 0.05, 0.0, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 40.0, 0.0, 135.0, 
+    makeBone(b, 0.0, 0.0, 0.0, 0.3, 0.05, 0.0, 0.0, 0.0, 180.0, 
+            0.0, -90.0, 90.0, 40.0, 0.0, 135.0, 
             children, RGBColor(0.2, 0.8, 0.2));
     // fingers
-    makeBone(c, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 0.0, 
+    makeBone(c, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, 10.0, 0.0, 20.0,
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2));    
-    makeBone(d, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 0.0, 
+    makeBone(d, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, 5.0, -5.0, 15.0, 
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
-    makeBone(e, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 0.0, 
+    makeBone(e, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, 0.0, -10.0, 10.0,
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
-    makeBone(f, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 0.0, 
+    makeBone(f, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0,
             0.0, 0.0, 0.0, -5.0, -15.0, 5.0, 
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
-    makeBone(g, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 0.0, 
+    makeBone(g, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, -10.0, -20.0, 0.0, 
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
 
@@ -152,35 +152,49 @@ void display() {
 
 /* keystrokes to rotate each of the 3 bone segments */
 void keyFunc(unsigned char key, int x, int y) {
-    if (key == 'd') { // rotate upper arm anticlockwise
+    if (key == 'd') { // rotate upper arm anticlockwise around z axis
         struct Bone * bone = bones[0];
         float newAngle_z = bone->angle_z + rotDelta;
         if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
             bone->angle_z = newAngle_z;
         }
         glutPostRedisplay();
-    } else if (key == 'f') { // rotate upper arm clockwise
+    } else if (key == 'a') { // rotate upper arm anticlockwise around x axis
         struct Bone * bone = bones[0];
-        float newAngle_z = bone->angle_z - rotDelta;
-        if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-            bone->angle_z = newAngle_z;
+        float newAngle_x = bone->angle_x + rotDelta;
+        if (newAngle_x >= bone->minAngle_x && newAngle_x <= bone->maxAngle_x) {
+            bone->angle_x = newAngle_x;
         }
         glutPostRedisplay();
-    } else if (key == 'j') { // rotate lower arm anticlockwise
+    } else if (key == 's') { // rotate upper arm anticlockwise around y axis
+        struct Bone * bone = bones[0];
+        float newAngle_y = bone->angle_y + rotDelta;
+        if (newAngle_y >= bone->minAngle_y && newAngle_y <= bone->maxAngle_y) {
+            bone->angle_y = newAngle_y;
+        }
+        glutPostRedisplay();
+    } else if (key == 'l') { // rotate lower arm anticlockwise around z axis
         struct Bone * bone = bones[1];
         float newAngle_z = bone->angle_z + rotDelta;
         if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
             bone->angle_z = newAngle_z;
         }
         glutPostRedisplay();
-    } else if (key == 'k') { // rotate lower arm clockwise
+    } else if (key == 'j') { // rotate lower arm anticlockwise around x axis
         struct Bone * bone = bones[1];
-        float newAngle_z = bone->angle_z - rotDelta;
-        if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-            bone->angle_z = newAngle_z;
+        float newAngle_x = bone->angle_x + rotDelta;
+        if (newAngle_x >= bone->minAngle_x && newAngle_x <= bone->maxAngle_x) {
+            bone->angle_x = newAngle_x;
         }
-        glutPostRedisplay();      
-    } else if (key == 'u') { // rotate hand anticlockwise
+        glutPostRedisplay();
+    } else if (key == 'k') { // rotate lower arm anticlockwise around y axis
+        struct Bone * bone = bones[1];
+        float newAngle_y = bone->angle_y + rotDelta;
+        if (newAngle_y >= bone->minAngle_y && newAngle_y <= bone->maxAngle_y) {
+            bone->angle_y = newAngle_y;
+        }
+        glutPostRedisplay();  
+    } else if (key == 'o') { // rotate hand anticlockwise around z axis
         for(int i = 2; i < 7; i++) {
             struct Bone * bone = bones[i];
             float newAngle_z = bone->angle_z + rotDelta;
@@ -189,12 +203,21 @@ void keyFunc(unsigned char key, int x, int y) {
             }
         }
         glutPostRedisplay();       
-    } else if (key == 'i') { // rotate hand clockwise
+    } else if (key == 'u') { // rotate hand anticlockwise around x axis
         for(int i = 2; i < 7; i++) {
             struct Bone * bone = bones[i];
-            float newAngle_z = bone->angle_z - rotDelta;
-            if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-                bone->angle_z = newAngle_z;
+            float newAngle_x = bone->angle_x - rotDelta;
+            if (newAngle_x >= bone->minAngle_x && newAngle_x <= bone->maxAngle_x) {
+                bone->angle_x = newAngle_x;
+            }
+        } 
+        glutPostRedisplay();      
+    } else if (key == 'i') { // rotate hand anticlockwise around y axis
+        for(int i = 2; i < 7; i++) {
+            struct Bone * bone = bones[i];
+            float newAngle_y = bone->angle_y - rotDelta;
+            if (newAngle_y >= bone->minAngle_y && newAngle_y <= bone->maxAngle_y) {
+                bone->angle_y = newAngle_y;
             }
         } 
         glutPostRedisplay();      
