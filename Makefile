@@ -1,8 +1,8 @@
 # the name of the compiled binary
-TARGET  := 2dmotion
+TARGET  := 3dmotion
 
 # list files to compile and link together
-FILES   := 2dmotion SimpleImage stb
+FILES   := 3dmotion SimpleImage stb
 
 
 #################################################################
