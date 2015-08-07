@@ -1,8 +1,8 @@
 # the name of the compiled binary
-TARGET  := kinematics
+TARGET  := 2dmotion
 
 # list files to compile and link together
-FILES   := kinematics SimpleImage stb
+FILES   := 2dmotion SimpleImage stb
 
 
 #################################################################

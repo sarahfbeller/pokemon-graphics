@@ -1,14 +1,17 @@
 #include <GLUT/glut.h>
+#include "SimpleImage.h"
 #include <math.h>
 #include <vector>
 #include <iostream>
 
 struct Bone {
-    float x0, y0, angle, len, minAngle, maxAngle;
+    float x0, y0, len, wid; // starting point, length, and width of bone
+    float angle, minAngle, maxAngle; // initial angle and limits of motion
     struct Bone *children[5];
     int numChildren;
+    RGBColor color;
 };
-std::vector<struct Bone *> bones;
+std::vector<struct Bone *> bones; // bones[0] = root
 
 // amount to add to rotation/translation with each frame / keystroke
 float rotDelta = 0.1; // in degrees
@@ -33,6 +36,8 @@ void makeBones() {
     a->minAngle = -90.0;
     a->maxAngle = 90.0;
     a->len = 0.35;
+    a->wid = 0.05;
+    a->color = RGBColor(0.5, 0.3, 0.6);
     a->children[0] = b;
     a->numChildren++;
 
@@ -42,6 +47,8 @@ void makeBones() {
     b->minAngle = 0.0;
     b->maxAngle = 135.0;
     b->len = 0.3;
+    b->wid = 0.05;
+    b->color = RGBColor(0.2, 0.8, 0.2);
     b->children[0] = c;
     b->children[1] = d;
     b->children[2] = e;
@@ -55,30 +62,40 @@ void makeBones() {
     c->minAngle = 0.0;
     c->maxAngle = 20.0;
     c->len = 0.05;
+    c->wid = 0.005;
+    c->color = RGBColor(0.8, 0.2, 0.2);
     d->x0 = 0.0;
     d->y0 = 0.0;
     d->angle = 5.0;
     d->minAngle = -5.0;
     d->maxAngle = 15.0;
     d->len = 0.05;
+    d->wid = 0.005;
+    d->color = RGBColor(0.8, 0.2, 0.2);
     e->x0 = 0.0;
     e->y0 = 0.0;
     e->angle = 0.0;
     e->minAngle = -10.0;
     e->maxAngle = 10.0;
     e->len = 0.05;
+    e->wid = 0.005;
+    e->color = RGBColor(0.8, 0.2, 0.2);
     f->x0 = 0.0;
     f->y0 = 0.0;
     f->angle = -5.0;
     f->minAngle = -15.0;
     f->maxAngle = 5.0;
     f->len = 0.05;
+    f->wid = 0.005;
+    f->color = RGBColor(0.8, 0.2, 0.2);
     g->x0 = 0.0;
     g->y0 = 0.0;
     g->angle = -10.0;
     g->minAngle = -20.0;
     g->maxAngle = 0.0;
     g->len = 0.05;
+    g->wid = 0.005;
+    g->color = RGBColor(0.8, 0.2, 0.2);
 
     bones.push_back(a);
     bones.push_back(b);
@@ -105,9 +122,19 @@ void drawBone(struct Bone *bone, bool isRoot) {
     glTranslatef(bone->x0, bone->y0, 0.0);
     glRotatef(bone->angle, 0.0, 0.0, 1.0);
 
-    glBegin(GL_LINES);
-        glVertex2f(0.0, 0.0);
-        glVertex2f(bone->len, 0.0);
+    // // makes bones as lines
+    // glBegin(GL_LINES);
+    //     glVertex2f(0.0, 0.0);
+    //     glVertex2f(bone->len, 0.0);
+    // glEnd();
+
+    // makes bones as rectangles
+    glColor3f(bone->color.r, bone->color.g, bone->color.b);
+    glBegin(GL_QUADS);
+        glVertex2f(0.0, -0.5*bone->wid);
+        glVertex2f(0.0, 0.5*bone->wid);
+        glVertex2f(bone->len, 0.5*bone->wid);
+        glVertex2f(bone->len, -0.5*bone->wid);
     glEnd();
     glTranslatef(bone->len, 0.0, 0.0);
 
