@@ -37,10 +37,8 @@ varying vec3 eyeSpaceNormal;
 uniform vec3 eyeSpaceViewDir;
 uniform vec3 lightDir;
 
-uniform float x_distortion;
-uniform float y_distortion;
-uniform float z_distortion;
-
+uniform float x_position;
+uniform float z_postion;
 varying vec4 target_position;
 
 void main()
@@ -55,9 +53,9 @@ void main()
     lightColor      = vec3(1.0, 1.0, 0.5);
 
     vertices       = gl_Vertex;
-    vertices.x     = vertices.x + x_distortion;
+    vertices.x     = vertices.x + x_position;
     // vertices.y     = vertices.y * y_distortion;
-    vertices.z     = vertices.z + z_distortion;
+    vertices.z     = vertices.z + z_postion;
     gl_Position    = gl_ModelViewProjectionMatrix * vertices;
     eyeSpaceNormal  = gl_Normal;
     target_position = vec4(10., 0.0, 10., 1.0);

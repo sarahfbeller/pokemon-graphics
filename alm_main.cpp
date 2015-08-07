@@ -12,8 +12,8 @@
 #include <cmath>
 #include "file_io.h"
 
-std::string vertexShader;
-std::string fragmentShader;
+std::string vertexShader = "kernels/character.vert";
+std::string fragmentShader = "kernels/character.frag";
 
 std::string wallVertexShader = "kernels/walls.vert";
 std::string wallFragmentShader = "kernels/walls.frag";
@@ -30,12 +30,12 @@ SimpleShaderProgram *wallShader;
 SimpleShaderProgram *groundShader;
 SimpleShaderProgram *skyShader;
 
-float x_distortion = 1.0;
-float y_distortion = 1.0;
-float z_distortion = 1.0;
+float x_position = 1.0;
+float vert_camera_pos = 1.0;
+float z_postion = 1.0;
 
-float ground_level  = -.6f;
-float quad_height   = 4.0f;
+float ground_level  = 0.f;
+float quad_height   = 8.0f;
 float quad_size     = 30.0f;
 
 float facing_angle     = 0;
@@ -92,10 +92,10 @@ void drawWalls(){
 
 void drawCharacter(){
     shader1->Bind();
-    shader1->SetUniform("x_distortion", x_distortion);
-    shader1->SetUniform("y_distortion", y_distortion);
-    shader1->SetUniform("z_distortion", z_distortion);
+    shader1->SetUniform("x_position", x_position);
+    shader1->SetUniform("z_postion", z_postion);
     shader1->SetUniform("facing_angle", facing_angle);
+
 
     for ( int i = 0; i < FACES.size(); i ++){
         Vertex a = ((Triangle_face)FACES.at(i)).a;
@@ -132,7 +132,7 @@ void drawCharacter(){
     shader1->UnBind();
 
 
-
+// Reference character just for fun
     for ( int i = 0; i < FACES.size(); i ++){
         Vertex a = ((Triangle_face)FACES.at(i)).a;
         Vertex b = ((Triangle_face)FACES.at(i)).b;
@@ -173,7 +173,7 @@ void DrawWithShader(){
     glLoadIdentity();             /* clear the matrix */
     glRotatef(angle, 0, 1, 0);
     // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
-    gluLookAt(2.0f, 0.0f, z, 0.0f, 0.0f + ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
+    gluLookAt(0.0f, vert_camera_pos, z, 0.0f, 0.0f + ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
@@ -210,44 +210,51 @@ void KeyCallback(unsigned char key, int x, int y)
     switch(key) {
     case 'q':
         exit(0);
-    case 'f':
+
+    // Zoom in/out
+    case 'u':
         z += .40;
         lz -= .40;
         ly -= .04;
         break;
-    case 'j':
+    case 'o':
         z -= .20;
         lz += .20;
         ly += .02;
         break;
-    case 's':
+
+    // Change camera view
+    case 'l':
         angle += 5.f;
         break;
-    case 'l':
+    case 'j':
         angle -= 5.f;
         break;
-    case 'd':
-        x_distortion -= .1f;
-        break;
-    case 'k':
-        x_distortion += .1f;
-        break;
     case 'i':
-        y_distortion += .1f;
+        vert_camera_pos += .1f;
         break;
     case ',':
-        y_distortion -= .1f;
+        vert_camera_pos -= .1f;
         break;    
+
+    // Move Character
+    case 's':
+        x_position -= .1f;
+        break;
+    case 'f':
+        x_position += .1f;
+        break;
     case 'e':
-        z_distortion += .1f;
+        z_postion += .1f;
         break;
     case 'x':
-        z_distortion -= .1f;
+        z_postion -= .1f;
         break;    
+
+    // Reset Character Position
     case 'a':
-        x_distortion = 1.0;
-        y_distortion = 1.0;
-        z_distortion = 1.0;
+        x_position = 1.0;
+        z_postion = 1.0;
     default:
         break;
     }
@@ -296,15 +303,13 @@ void Setup()
 
 
 int main(int argc, char** argv){
-    if(!(argc == 4)){
-        printf("usage: ./hw5 <vertex shader1> <fragment shader1> <mesh> \n");
+    if(!(argc == 2)){
+        printf("usage: ./alm <mesh> \n");
         return 0;
     }
 
-    vertexShader   = std::string(argv[1]);
-    fragmentShader = std::string(argv[2]);
     std::string input_file = "";
-    input_file  = argv[3];
+    input_file  = argv[1];
 
     // Initialize GLUT.
     glutInit(&argc, argv);
@@ -321,7 +326,6 @@ int main(int argc, char** argv){
         if(!GLEW_VERSION_2_0) {
             printf("Your graphics card or graphics driver does\n"
                    "\tnot support OpenGL 2.0, trying ARB extensions\n");
-
             if(!GLEW_ARB_vertex_shader || !GLEW_ARB_fragment_shader) {
                 printf("ARB extensions don't work either.\n");
                 printf("\tYou can try updating your graphics drivers.\n"
