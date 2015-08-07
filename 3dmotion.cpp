@@ -64,7 +64,7 @@ void makeBones() {
     std::vector<struct Bone *> children;
     children.push_back(b);
     // upper arm
-    makeBone(a, 0.3, 0.3, 0.0, 0.35, 0.05, 0.0, 0.0, 0.0, 0.0, 
+    makeBone(a, 0.3, 0.3, 0.0, 0.35, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 135.0, 20.0, -90.0, 90.0, 
             children, RGBColor(0.5, 0.3, 0.6));
     // lower arm
@@ -73,23 +73,23 @@ void makeBones() {
     children.push_back(e);
     children.push_back(f);
     children.push_back(g);
-    makeBone(b, 0.0, 0.0, 0.0, 0.3, 0.05, 0.0, 0.0, 0.0, 180.0, 
+    makeBone(b, 0.0, 0.0, 0.0, 0.3, 0.05, 0.05, 0.0, 0.0, 180.0, 
             0.0, -90.0, 90.0, 40.0, 0.0, 135.0, 
             children, RGBColor(0.2, 0.8, 0.2));
     // fingers
-    makeBone(c, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
+    makeBone(c, 0.0, 0.0, 0.0, 0.05, 0.005, 0.005, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, 10.0, 0.0, 20.0,
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2));    
-    makeBone(d, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
+    makeBone(d, 0.0, 0.0, 0.0, 0.05, 0.005, 0.005, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, 5.0, -5.0, 15.0, 
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
-    makeBone(e, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
+    makeBone(e, 0.0, 0.0, 0.0, 0.05, 0.005, 0.005, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, 0.0, -10.0, 10.0,
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
-    makeBone(f, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0,
+    makeBone(f, 0.0, 0.0, 0.0, 0.05, 0.005, 0.005, 0.0, 0.0, 90.0,
             0.0, 0.0, 0.0, -5.0, -15.0, 5.0, 
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
-    makeBone(g, 0.0, 0.0, 0.0, 0.05, 0.005, 0.0, 0.0, 0.0, 90.0, 
+    makeBone(g, 0.0, 0.0, 0.0, 0.05, 0.005, 0.005, 0.0, 0.0, 90.0, 
             0.0, 0.0, 0.0, -10.0, -20.0, 0.0, 
             std::vector<struct Bone *>(), RGBColor(0.8, 0.2, 0.2)); 
 
@@ -126,13 +126,38 @@ void drawBone(struct Bone *bone, bool isRoot) {
     //     glVertex2f(bone->xdim, 0.0);
     // glEnd();
 
-    // makes bones as rectangles
+    // makes bones as cuboids
     glColor3f(bone->color.r, bone->color.g, bone->color.b);
     glBegin(GL_QUADS);
-        glVertex3f(0.0, -0.5*bone->ydim, 0.0);
-        glVertex3f(0.0, 0.5*bone->ydim, 0.0);
-        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.0);
-        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.0);
+        glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(0.0, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.5*bone->zdim);
+
+        glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(0.0, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(bone->xdim, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, -0.5*bone->zdim);
     glEnd();
     glTranslatef(bone->xdim, 0.0, 0.0);
 

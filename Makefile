@@ -1,6 +1,6 @@
 # the name of the compiled binary
 
-T1 := alm
+T1 := 3dmotion
 
 # list files to compile and link together
 
