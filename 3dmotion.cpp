@@ -18,6 +18,10 @@ std::vector<struct Bone *> bones; // bones[0] = root
 // amount to add to rotation/translation with each frame / keystroke
 float rotDelta = 0.1; // in degrees
 float transDelta = 0.001;
+// globals for rotation with mouse click/drag
+int X = 0;
+int Y = 0;
+bool isClicked = false;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -197,6 +201,26 @@ void keyFunc(unsigned char key, int x, int y) {
     }
 }
 
+void mouseFunc(int button, int state, int x, int y) {
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        isClicked = true;
+        X = x;
+        Y = y;
+    }
+}
+
+void motionFunc(int curr_x, int curr_y) {
+    if(isClicked) {
+        float dx = float(X) - curr_x;
+        float dy = float(Y) - curr_y;
+        glRotatef(dx, 1.0, 0.0, 0.0);
+        glRotatef(dy, 0.0, 1.0, 0.0);
+    }
+    glutPostRedisplay();
+    X = curr_x;
+    Y = curr_y;
+}
+
 void init() {
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glMatrixMode(GL_PROJECTION);
@@ -213,6 +237,8 @@ int main(int argc, char** argv) {
     glutCreateWindow("Kinematics");
     init();
     glutKeyboardFunc(keyFunc);
+    glutMouseFunc(mouseFunc);
+    glutMotionFunc(motionFunc);
     glutDisplayFunc(display); 
     glutMainLoop();
     return 0;
