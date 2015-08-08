@@ -1,6 +1,6 @@
 # the name of the compiled binary
 
-T1 := 3dmotion
+T1 := 3dPikachu
 
 # list files to compile and link together
 
@@ -8,7 +8,7 @@ T1 := 3dmotion
 # FILES1   := alm_main SimpleImage stb 
 
 # For 3dmotion testing
-FILES1   := 3dmotion SimpleImage stb 
+FILES1   := 3dPikachu SimpleImage stb 
 
 #################################################################
 
