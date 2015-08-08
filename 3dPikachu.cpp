@@ -67,47 +67,56 @@ void makeBones() {
     std::vector<struct Bone *> children;
     children.push_back(leftShoulder);
     children.push_back(rightShoulder);
-    // children.push_back(head);
-    // children.push_back(leftLeg);
-    // children.push_back(rightLeg);
+    children.push_back(head);
+    children.push_back(leftLeg);
+    children.push_back(rightLeg);
     // torso
     float torsoLen = 0.4;
-    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.15, 0.15, 0.0, 0.0, 360.0, 
+    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // left shoulder
     children.clear();
-    // children.push_back(leftArm);
+    children.push_back(leftArm);
     makeBone(leftShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 110.0, 0.0, 180.0, 
+            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // right shoulder
-    // children[0] = rightArm;
+    children[0] = rightArm;
     makeBone(rightShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -110.0, 0.0, -180.0, 
+            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
 
     // head
-    // children[0] = leftEar;
-    // children.push_back(rightEar);
+    children[0] = leftEar;
+    children.push_back(rightEar);
+    makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
+            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
 
-    // // arms
-    // children.clear();
-    // makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-    //         0.0, 0.0, 0.0, 100.0, -90.0, 90.0, 
-    //         children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    // makeBone(rightArm, 0.0, 0.0, 0.0, 0.4, 0.2, 0.2, 0.0, 0.0, 0.0, 
-    //         0.0, 0.0, 0.0, 80.0, -90.0, 90.0, 
-    //         children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+    // arms
+    children.clear();
+    makeBone(leftArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 50.0, 0.0, 170.0, 
+            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+    makeBone(rightArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -50.0, -170.0, 0.0, 
+            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // legs
-    makeBone(leftLeg, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 120.0, 90.0, 180.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    makeBone(rightLeg, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -120.0, -90.0, -180.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
 
     // ears
+    makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 
+            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+    makeBone(rightEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, 
+            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
 
 
     bones.push_back(torso);
