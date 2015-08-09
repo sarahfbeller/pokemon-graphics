@@ -59,8 +59,10 @@ public:
 	std::vector<Texture> obj_textures;
 	std::vector<Normal> obj_normals;
 
-	bool norm = false;     // true if vertex normals provided
-	bool text = false;     // true if texture coords provided
+	// bool norm = false;     // true if vertex normals provided
+	// bool text = false;     // true if texture coords provided
+	bool norm;     // true if vertex normals provided
+	bool text;     // true if texture coords provided
 
 	// key value pairs: material_id <-> material (stores material properties, including texture filenames)
 	std::map<std::string, Material> mat_map;
@@ -80,6 +82,8 @@ public:
 
 	// parses through the provided .obj file and fills the vertex, face, texture, and normal vectors
 	bool load_file(const std::string& filename) {
+		norm = false;
+		text = false;
 		std::ifstream ifs (filename.c_str(), std::ifstream::in);
 
 		printf("loading file: %s\n\n", filename.c_str());

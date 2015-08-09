@@ -10,25 +10,34 @@
 #include <string>
 #include <cstdio>
 #include <cmath>
-#include "file_io.h"
+// #include "file_io.h"
+#include "draw_triangle.h"
+#include "parser.h"
 
-std::string vertexShader = "kernels/character.vert";
-std::string fragmentShader = "kernels/character.frag";
+// =================== Element Shaders ====================== //
+    SimpleShaderProgram *shader1;
+    SimpleShaderProgram *wallShader;
+    SimpleShaderProgram *groundShader;
+    SimpleShaderProgram *skyShader;
 
-std::string wallVertexShader = "kernels/walls.vert";
-std::string wallFragmentShader = "kernels/walls.frag";
+    std::string vertexShader = "kernels/character.vert";
+    std::string fragmentShader = "kernels/character.frag";
 
-std::string groundVertexShader = "kernels/ground.vert";
-std::string groundFragmentShader = "kernels/ground.frag";
+    std::string wallVertexShader = "kernels/walls.vert";
+    std::string wallFragmentShader = "kernels/walls.frag";
 
-std::string skyVertexShader = "kernels/sky.vert";
-std::string skyFragmentShader = "kernels/sky.frag";
+    std::string groundVertexShader = "kernels/ground.vert";
+    std::string groundFragmentShader = "kernels/ground.frag";
+
+    std::string skyVertexShader = "kernels/sky.vert";
+    std::string skyFragmentShader = "kernels/sky.frag";
 
 
-SimpleShaderProgram *shader1;
-SimpleShaderProgram *wallShader;
-SimpleShaderProgram *groundShader;
-SimpleShaderProgram *skyShader;
+Parser *p; 
+int Button;
+int State;
+int X;
+int Y;
 
 float x_position = 1.0;
 float vert_camera_pos = 1.0;
@@ -40,7 +49,12 @@ float quad_size     = 30.0f;
 
 float facing_angle     = 0;
 
+float lx = 0.1f, lz = -1.0f, ly = -0.15f;
+float x = -0.1f, z = 1.0f, y = 0.15f;
+float angle = 0;
 
+
+// ====================== Draw Scene Helpers ================= //
 void drawGround(){
     groundShader->Bind();
     glBegin(GL_QUADS);
@@ -62,7 +76,6 @@ void drawSky(){
     glEnd();
     skyShader->UnBind();
 }
-
 
 void drawWalls(){
     wallShader->Bind();
@@ -96,86 +109,88 @@ void drawCharacter(){
     shader1->SetUniform("z_postion", z_postion);
     shader1->SetUniform("facing_angle", facing_angle);
 
+    // for each (Face f in p->obj_faces)
+    //     DrawTriangle(f, *p);
 
-    for ( int i = 0; i < FACES.size(); i ++){
-        Vertex a = ((Triangle_face)FACES.at(i)).a;
-        Vertex b = ((Triangle_face)FACES.at(i)).b;
-        Vertex c = ((Triangle_face)FACES.at(i)).c;
-        Vertex u = Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
-        Vertex v = Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
+    for(int i = 0; i < (p->obj_faces).size(); i++)
+        DrawTriangle(p->obj_faces[i], *p);
 
-        Vertex cross    = Vertex(   u.y * v.z - u.z * v.y,
-                                    u.z * v.x - u.x * v.z,
-                                    u.x * v.y - u.y * v.x);
-        float mag       = sqrt(     cross.x * cross.x 
-                                    + cross.y * cross.y 
-                                    + cross.z * cross.z);
-        Vertex norm     = Vertex(   cross.x / mag, 
-                                    cross.y / mag, 
-                                    cross.z / mag);
 
-        glBegin(GL_TRIANGLES);
-            glNormal3f( norm.x, norm.y, norm.z);
-            glVertex3f( ((Triangle_face)FACES.at(i)).a.x, 
-                        ((Triangle_face)FACES.at(i)).a.y, 
-                        ((Triangle_face)FACES.at(i)).a.z);
-            glVertex3f( ((Triangle_face)FACES.at(i)).b.x, 
-                        ((Triangle_face)FACES.at(i)).b.y, 
-                        ((Triangle_face)FACES.at(i)).b.z);
-            glVertex3f( ((Triangle_face)FACES.at(i)).c.x, 
-                        ((Triangle_face)FACES.at(i)).c.y, 
-                        ((Triangle_face)FACES.at(i)).c.z);
-        glEnd();        
+    // for ( int i = 0; i < FACES.size(); i ++){
+        // Vertex a = ((Triangle_face)FACES.at(i)).a;
+        // Vertex b = ((Triangle_face)FACES.at(i)).b;
+        // Vertex c = ((Triangle_face)FACES.at(i)).c;
+        // Vertex u = Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
+        // Vertex v = Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
 
-    }   
+        // Vertex cross    = Vertex(   u.y * v.z - u.z * v.y,
+        //                             u.z * v.x - u.x * v.z,
+        //                             u.x * v.y - u.y * v.x);
+        // float mag       = sqrt(     cross.x * cross.x 
+        //                             + cross.y * cross.y 
+        //                             + cross.z * cross.z);
+        // Vertex norm     = Vertex(   cross.x / mag, 
+        //                             cross.y / mag, 
+        //                             cross.z / mag);
+
+        // glBegin(GL_TRIANGLES);
+        //     glNormal3f( norm.x, norm.y, norm.z);
+        //     glVertex3f( ((Triangle_face)FACES.at(i)).a.x, 
+        //                 ((Triangle_face)FACES.at(i)).a.y, 
+        //                 ((Triangle_face)FACES.at(i)).a.z);
+        //     glVertex3f( ((Triangle_face)FACES.at(i)).b.x, 
+        //                 ((Triangle_face)FACES.at(i)).b.y, 
+        //                 ((Triangle_face)FACES.at(i)).b.z);
+        //     glVertex3f( ((Triangle_face)FACES.at(i)).c.x, 
+        //                 ((Triangle_face)FACES.at(i)).c.y, 
+        //                 ((Triangle_face)FACES.at(i)).c.z);
+        // glEnd();        
+    // }   
 
     shader1->UnBind();
+    // Reference character just for fun
+    // for ( int i = 0; i < FACES.size(); i ++){
+        // Vertex a = ((Triangle_face)FACES.at(i)).a;
+        // Vertex b = ((Triangle_face)FACES.at(i)).b;
+        // Vertex c = ((Triangle_face)FACES.at(i)).c;
+        // Vertex u = Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
+        // Vertex v = Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
 
+        // Vertex cross    = Vertex(   u.y * v.z - u.z * v.y,
+        //                             u.z * v.x - u.x * v.z,
+        //                             u.x * v.y - u.y * v.x);
+        // float mag       = sqrt(     cross.x * cross.x 
+        //                             + cross.y * cross.y 
+        //                             + cross.z * cross.z);
+        // Vertex norm     = Vertex(   cross.x / mag, 
+        //                             cross.y / mag, 
+        //                             cross.z / mag);
 
-// Reference character just for fun
-    for ( int i = 0; i < FACES.size(); i ++){
-        Vertex a = ((Triangle_face)FACES.at(i)).a;
-        Vertex b = ((Triangle_face)FACES.at(i)).b;
-        Vertex c = ((Triangle_face)FACES.at(i)).c;
-        Vertex u = Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
-        Vertex v = Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
-
-        Vertex cross    = Vertex(   u.y * v.z - u.z * v.y,
-                                    u.z * v.x - u.x * v.z,
-                                    u.x * v.y - u.y * v.x);
-        float mag       = sqrt(     cross.x * cross.x 
-                                    + cross.y * cross.y 
-                                    + cross.z * cross.z);
-        Vertex norm     = Vertex(   cross.x / mag, 
-                                    cross.y / mag, 
-                                    cross.z / mag);
-
-        glBegin(GL_TRIANGLES);
-            glNormal3f( norm.x, norm.y, norm.z);
-            glVertex3f( ((Triangle_face)FACES.at(i)).a.x + 3, 
-                        ((Triangle_face)FACES.at(i)).a.y, 
-                        ((Triangle_face)FACES.at(i)).a.z);
-            glVertex3f( ((Triangle_face)FACES.at(i)).b.x + 3, 
-                        ((Triangle_face)FACES.at(i)).b.y, 
-                        ((Triangle_face)FACES.at(i)).b.z);
-            glVertex3f( ((Triangle_face)FACES.at(i)).c.x + 3, 
-                        ((Triangle_face)FACES.at(i)).c.y, 
-                        ((Triangle_face)FACES.at(i)).c.z);
-        glEnd();
-
-
-    }   
+        // glBegin(GL_TRIANGLES);
+        //     glNormal3f( norm.x, norm.y, norm.z);
+        //     glVertex3f( ((Triangle_face)FACES.at(i)).a.x + 3, 
+        //                 ((Triangle_face)FACES.at(i)).a.y, 
+        //                 ((Triangle_face)FACES.at(i)).a.z);
+        //     glVertex3f( ((Triangle_face)FACES.at(i)).b.x + 3, 
+        //                 ((Triangle_face)FACES.at(i)).b.y, 
+        //                 ((Triangle_face)FACES.at(i)).b.z);
+        //     glVertex3f( ((Triangle_face)FACES.at(i)).c.x + 3, 
+        //                 ((Triangle_face)FACES.at(i)).c.y, 
+        //                 ((Triangle_face)FACES.at(i)).c.z);
+        // glEnd();
+    // }   
 }
 
 
-void DrawWithShader(){
-    glColor3f(1.0, 0.0, 0.0);
-    glLoadIdentity();             /* clear the matrix */
+// ========================= Drawing Wrapper ================== //
+void DrawingWrapper(){
+    // glColor3f(1.0, 0.0, 0.0);
+    // glLoadIdentity();             /* clear the matrix */
     glRotatef(angle, 0, 1, 0);
     // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
     gluLookAt(0.0f, vert_camera_pos, z, 0.0f, 0.0f + ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
 
     drawGround();
     drawWalls();
@@ -183,6 +198,53 @@ void DrawWithShader(){
     drawCharacter();
 }
 
+
+// =================== Setup Functions ===================== //
+void SetupLighting() {
+    GLfloat light_position[] = { 0.0, 20.0, 0.0, 0.0 };
+    GLfloat white_light[] = { .8, .8, .8, 1.0 };
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glEnable(GL_LIGHTING);
+}
+
+void SetupCamera() {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-1, 1, -1, 1, 1, 20);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0.0, 0.0, 10.0,
+        0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0);
+}
+
+void SetupWrapper()
+{
+    shader1 = new SimpleShaderProgram();
+    shader1->LoadVertexShader(vertexShader);
+    shader1->LoadFragmentShader(fragmentShader);
+
+    wallShader = new SimpleShaderProgram();
+    wallShader->LoadVertexShader(wallVertexShader);
+    wallShader->LoadFragmentShader(wallFragmentShader);
+
+    groundShader = new SimpleShaderProgram();
+    groundShader->LoadVertexShader(groundVertexShader);
+    groundShader->LoadFragmentShader(groundFragmentShader);   
+
+    skyShader = new SimpleShaderProgram();
+    skyShader->LoadVertexShader(skyVertexShader);
+    skyShader->LoadFragmentShader(skyFragmentShader);        
+
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
+    SetupCamera();
+    SetupLighting();
+    glEnable(GL_DEPTH_TEST);
+}
+
+// =================== Callback Functions ================== //
 void DisplayCallback(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -190,7 +252,7 @@ void DisplayCallback(){
     glLoadIdentity();
     glTranslatef(0.f, 0.f, -10.f);
 
-    DrawWithShader();
+    DrawingWrapper();
     glutSwapBuffers();
 }
 
@@ -262,46 +324,50 @@ void KeyCallback(unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
-void Setup()
-{
-    shader1 = new SimpleShaderProgram();
-    shader1->LoadVertexShader(vertexShader);
-    shader1->LoadFragmentShader(fragmentShader);
+void MouseCallback(int button, int state, int x, int y) {
 
-    wallShader = new SimpleShaderProgram();
-    wallShader->LoadVertexShader(wallVertexShader);
-    wallShader->LoadFragmentShader(wallFragmentShader);
+    if (button == GLUT_LEFT_BUTTON) Button = 1;
 
-    groundShader = new SimpleShaderProgram();
-    groundShader->LoadVertexShader(groundVertexShader);
-    groundShader->LoadFragmentShader(groundFragmentShader);   
+    else if (button == GLUT_RIGHT_BUTTON) Button = 2;
 
-    skyShader = new SimpleShaderProgram();
-    skyShader->LoadVertexShader(skyVertexShader);
-    skyShader->LoadFragmentShader(skyFragmentShader);        
+    if (state == GLUT_UP) {
+        Button = 0;
+        //glSaveModelView();
+    }
 
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    else if (state == GLUT_DOWN) {
+        X = x;
+        Y = y;
+        glPushMatrix();
+    }
+}
 
+void TransformCallback(int curr_x, int curr_y) {
 
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess[] = { 60.0 };
-    GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat lmodel_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
+    int dx = X - curr_x;
+    int dy = Y - curr_y;
+    if (Button == 1) {
+        //calculating delta0 and delta1
+        float delta0 = (dx);
+        float delta1 = -(dy);
+        glRotatef(delta1, 1, 0, 0);
+        glRotatef(delta0, 0, 1, 0);
+        
+    }
 
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, white_light);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
-
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
-    glEnable(GL_DEPTH_TEST);
-
+    else if (Button == 2) {
+        //zooming based on y-motion
+        float scale_val = 1 + 0.005 * (float)dy;
+        glScalef(scale_val, scale_val, scale_val);
+    }
+    
+    glutPostRedisplay();
+    X = curr_x;
+    Y = curr_y;
 }
 
 
+// ========================= Main =========================== //
 int main(int argc, char** argv){
     if(!(argc == 2)){
         printf("usage: ./alm <mesh> \n");
@@ -317,6 +383,7 @@ int main(int argc, char** argv){
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(640, 480);
     glutCreateWindow("Pokemon");
+
 
     //
     // Initialize GLEW.
@@ -336,11 +403,15 @@ int main(int argc, char** argv){
         }
     #endif
 
-    Setup();
+    SetupWrapper();
 
-    load_file(input_file);
+    p = new Parser();
+    p->load_file(input_file);
+    // load_file(input_file);
 
     glutDisplayFunc(DisplayCallback);
+    glutMouseFunc(MouseCallback);
+    glutMotionFunc(TransformCallback);
     glutReshapeFunc(ReshapeCallback);
     glutKeyboardFunc(KeyCallback);
     glutIdleFunc(DisplayCallback);

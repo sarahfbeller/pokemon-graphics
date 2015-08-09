@@ -1,4 +1,6 @@
-#include "main.h"
+// #include "main.h"
+#include "alm_main.h"
+#include "parser.h"
 
 std::string curr_tex;
 GLuint textureID;
