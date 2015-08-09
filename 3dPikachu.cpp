@@ -16,12 +16,13 @@ struct Bone {
 std::vector<struct Bone *> bones; // bones[0] = root
 
 // amount to add to rotation/translation with each frame / keystroke
-float rotDelta = 0.1; // in degrees
+float rotDelta = 0.05; // in degrees
 float transDelta = 0.001;
 // globals for rotation with mouse click/drag
 int X = 0;
 int Y = 0;
 bool isClicked = false;
+float rot_z = 0.0;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -86,14 +87,12 @@ void makeBones() {
     makeBone(rightShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-
     // head
     children[0] = leftEar;
     children.push_back(rightEar);
     makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
             children, RGBColor(229/255.f, 228/255.f, 52/255.f));
-
     // arms
     children.clear();
     makeBone(leftArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
@@ -133,11 +132,11 @@ void makeBones() {
 
 /* recursively draws each bone, then its children */
 void drawBone(struct Bone *bone, bool isRoot) {
-    // // rotate entire structure
-    // float newAngle_z = bone->angle_z + rotDelta;
-    // if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-    //     bone->angle_z = newAngle_z;
-    // }
+    // rotate entire structure
+    float newAngle_z = bone->angle_z + rotDelta;
+    if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
+        bone->angle_z = newAngle_z;
+    }
     // // translate entire structure
     // if(isRoot) {
     //     bone->x0 += transDelta;
@@ -199,9 +198,17 @@ void drawBone(struct Bone *bone, bool isRoot) {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
+    // glRotatef(rot_z, 0.0, 0.0, 1.0);
     drawBone(bones[0], true);
     glFlush();
+    glutSwapBuffers();
+}
+
+void timerFunc(int v) {
+    rot_z += rotDelta;
+    if (rot_z > 360.0) rot_z -= 360.0;
     glutPostRedisplay();
+    glutTimerFunc(1, timerFunc, v);
 }
 
 /* keystrokes to rotate each of the 3 bone segments */
@@ -308,7 +315,7 @@ void init() {
 int main(int argc, char** argv) {
     makeBones();
 	glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(500, 500); 
     glutInitWindowPosition(100, 100);
     glutCreateWindow("Kinematics");
@@ -316,7 +323,8 @@ int main(int argc, char** argv) {
     glutKeyboardFunc(keyFunc);
     glutMouseFunc(mouseFunc);
     glutMotionFunc(motionFunc);
-    glutDisplayFunc(display); 
+    glutDisplayFunc(display);
+    glutTimerFunc(100, timerFunc, 0);
     glutMainLoop();
     return 0;
 }
