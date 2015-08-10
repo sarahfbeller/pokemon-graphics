@@ -10,7 +10,6 @@
 #include <string>
 #include <cstdio>
 #include <cmath>
-// #include "file_io.h"
 #include "draw_triangle.h"
 #include "parser.h"
 
@@ -128,79 +127,14 @@ void drawCharacter(){
                     glNormal3f(n->n_x, n->n_y, n->n_z);                        
                 } else {
                     Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
-
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
                 glVertex3f(v->x_val, v->y_val, v->z_val);                
             }
         glEnd();
-        // DrawTriangle(p->obj_faces[i], *p);
     }
 
-
-    // for ( int i = 0; i < FACES.size(); i ++){
-        // Vertex a = ((Triangle_face)FACES.at(i)).a;
-        // Vertex b = ((Triangle_face)FACES.at(i)).b;
-        // Vertex c = ((Triangle_face)FACES.at(i)).c;
-        // Vertex u = Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
-        // Vertex v = Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
-
-        // Vertex cross    = Vertex(   u.y * v.z - u.z * v.y,
-        //                             u.z * v.x - u.x * v.z,
-        //                             u.x * v.y - u.y * v.x);
-        // float mag       = sqrt(     cross.x * cross.x 
-        //                             + cross.y * cross.y 
-        //                             + cross.z * cross.z);
-        // Vertex norm     = Vertex(   cross.x / mag, 
-        //                             cross.y / mag, 
-        //                             cross.z / mag);
-
-        // glBegin(GL_TRIANGLES);
-        //     glNormal3f( norm.x, norm.y, norm.z);
-        //     glVertex3f( ((Triangle_face)FACES.at(i)).a.x, 
-        //                 ((Triangle_face)FACES.at(i)).a.y, 
-        //                 ((Triangle_face)FACES.at(i)).a.z);
-        //     glVertex3f( ((Triangle_face)FACES.at(i)).b.x, 
-        //                 ((Triangle_face)FACES.at(i)).b.y, 
-        //                 ((Triangle_face)FACES.at(i)).b.z);
-        //     glVertex3f( ((Triangle_face)FACES.at(i)).c.x, 
-        //                 ((Triangle_face)FACES.at(i)).c.y, 
-        //                 ((Triangle_face)FACES.at(i)).c.z);
-        // glEnd();        
-    // }   
-
-    shader1->UnBind();
-    // Reference character just for fun
-    // for ( int i = 0; i < FACES.size(); i ++){
-        // Vertex a = ((Triangle_face)FACES.at(i)).a;
-        // Vertex b = ((Triangle_face)FACES.at(i)).b;
-        // Vertex c = ((Triangle_face)FACES.at(i)).c;
-        // Vertex u = Vertex(b.x - a.x, b.y - a.y, b.z - a.z);
-        // Vertex v = Vertex(c.x - a.x, c.y - a.y, c.z - a.z);
-
-        // Vertex cross    = Vertex(   u.y * v.z - u.z * v.y,
-        //                             u.z * v.x - u.x * v.z,
-        //                             u.x * v.y - u.y * v.x);
-        // float mag       = sqrt(     cross.x * cross.x 
-        //                             + cross.y * cross.y 
-        //                             + cross.z * cross.z);
-        // Vertex norm     = Vertex(   cross.x / mag, 
-        //                             cross.y / mag, 
-        //                             cross.z / mag);
-
-        // glBegin(GL_TRIANGLES);
-        //     glNormal3f( norm.x, norm.y, norm.z);
-        //     glVertex3f( ((Triangle_face)FACES.at(i)).a.x + 3, 
-        //                 ((Triangle_face)FACES.at(i)).a.y, 
-        //                 ((Triangle_face)FACES.at(i)).a.z);
-        //     glVertex3f( ((Triangle_face)FACES.at(i)).b.x + 3, 
-        //                 ((Triangle_face)FACES.at(i)).b.y, 
-        //                 ((Triangle_face)FACES.at(i)).b.z);
-        //     glVertex3f( ((Triangle_face)FACES.at(i)).c.x + 3, 
-        //                 ((Triangle_face)FACES.at(i)).c.y, 
-        //                 ((Triangle_face)FACES.at(i)).c.z);
-        // glEnd();
-    // }   
+    shader1->UnBind();  
 }
 
 
@@ -429,7 +363,6 @@ int main(int argc, char** argv){
 
     p = new Parser();
     p->load_file(input_file);
-    // load_file(input_file);
 
     glutDisplayFunc(DisplayCallback);
     glutMouseFunc(MouseCallback);
