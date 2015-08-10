@@ -1,6 +1,7 @@
 #include <GLUT/glut.h>
 #include "SimpleImage.h"
 #include <math.h>
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -15,6 +16,18 @@ struct Bone {
 };
 std::vector<struct Bone *> bones; // bones[0] = root
 
+// indices into bones array for skeleton bones
+#define TORSO 0
+#define LEFTSHOULDER 1
+#define RIGHTSHOULDER 2
+#define LEFTARM 3
+#define RIGHTARM 4
+#define LEFTLEG 5
+#define RIGHTLEG 6
+#define HEAD 7
+#define LEFTEAR 8
+#define RIGHTEAR 9
+
 // amount to add to rotation/translation with each frame / keystroke
 float rotDelta = 0.05; // in degrees
 float transDelta = 0.001;
@@ -23,6 +36,9 @@ int X = 0;
 int Y = 0;
 bool isClicked = false;
 float rot_z = 0.0;
+// globals for keyframe animation
+float currTime = 0.0;
+bool isAnimated = false;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -49,9 +65,7 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
     bone->color = color;
 }
 
-/* Currently makes upper arm, lower arm, and 5 hand bones;
- * joints at elbow and wrist
- * First bone added must be root */
+/* First bone added must be root */
 void makeBones() {
     bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
@@ -103,11 +117,11 @@ void makeBones() {
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // legs
     makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 90.0, 180.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, 
+            children, RGBColor(0.0, 1.0, 0.0));
     makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -90.0, -180.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, 
+            children, RGBColor(0.0, 0.0, 1.0));
 
     // ears
     makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
@@ -133,10 +147,10 @@ void makeBones() {
 /* recursively draws each bone, then its children */
 void drawBone(struct Bone *bone, bool isRoot) {
     // rotate entire structure
-    float newAngle_z = bone->angle_z + rotDelta;
-    if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-        bone->angle_z = newAngle_z;
-    }
+    // float newAngle_z = bone->angle_z + rotDelta;
+    // if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
+    //     bone->angle_z = newAngle_z;
+    // }
     // // translate entire structure
     // if(isRoot) {
     //     bone->x0 += transDelta;
@@ -195,93 +209,68 @@ void drawBone(struct Bone *bone, bool isRoot) {
     glPopMatrix();
 }
 
+void walk() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0angle = -20.0;
+    float t1angle = 20.0;
+    float t2angle = -20.0;
+    float dt = 0.01;
+
+    struct Bone *bone = bones[LEFTLEG];
+    if (currTime <= t0+dt) {
+        bone->angle_y = t0angle;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        bone->angle_y = t1angle;
+    } else if (currTime >= t2) {
+        bone->angle_y = t2angle;
+        currTime = t0;
+    } else {
+        if (currTime < t1) {
+            bone->angle_y = ((currTime/(t1-t0))*(t1angle-t0angle)) + t0angle;
+        } else if (currTime < t2) {
+            bone->angle_y = (((currTime-t1)/(t2-t1))*(t2angle-t1angle)) + t1angle;
+        }
+    }
+
+    bones[RIGHTLEG]->angle_y = -1*bone->angle_y;
+    currTime += dt;
+    glutPostRedisplay();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-    // glRotatef(rot_z, 0.0, 0.0, 1.0);
+    if (isAnimated) walk();
     drawBone(bones[0], true);
     glFlush();
     glutSwapBuffers();
 }
 
-void timerFunc(int v) {
-    rot_z += rotDelta;
-    if (rot_z > 360.0) rot_z -= 360.0;
-    glutPostRedisplay();
-    glutTimerFunc(1, timerFunc, v);
-}
+// void timerFunc(int v) {
+//     walk();
+//     currTime += 0.01;
+//     glutPostRedisplay();
+//     glutTimerFunc(1, timerFunc, v);
+// }
 
-/* keystrokes to rotate each of the 3 bone segments */
 void keyFunc(unsigned char key, int x, int y) {
-    if (key == 'd') { // rotate upper arm anticlockwise around z axis
-        struct Bone * bone = bones[0];
-        float newAngle_z = bone->angle_z + rotDelta;
+    if (key == 'd') { // rotate left leg anticlockwise around z axis
+        struct Bone * bone = bones[5];
+        float newAngle_z = bone->angle_z + 5*rotDelta;
         if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
             bone->angle_z = newAngle_z;
         }
         glutPostRedisplay();
-    } else if (key == 'a') { // rotate upper arm anticlockwise around x axis
-        struct Bone * bone = bones[0];
-        float newAngle_x = bone->angle_x + rotDelta;
-        if (newAngle_x >= bone->minAngle_x && newAngle_x <= bone->maxAngle_x) {
-            bone->angle_x = newAngle_x;
-        }
+    } if (key == 'a') { // animate scene
+        isAnimated = !isAnimated;
+        currTime = 0.0;
         glutPostRedisplay();
-    } else if (key == 's') { // rotate upper arm anticlockwise around y axis
-        struct Bone * bone = bones[0];
-        float newAngle_y = bone->angle_y + rotDelta;
-        if (newAngle_y >= bone->minAngle_y && newAngle_y <= bone->maxAngle_y) {
-            bone->angle_y = newAngle_y;
-        }
+    } if (key == 'r') { // rotate scene by 90 degrees around y axis
+        glTranslatef(0.5, 0.0, 0.0);
+        glRotatef(90.0, 0.0, 1.0, 0.0);
         glutPostRedisplay();
-    } else if (key == 'l') { // rotate lower arm anticlockwise around z axis
-        struct Bone * bone = bones[1];
-        float newAngle_z = bone->angle_z + rotDelta;
-        if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-            bone->angle_z = newAngle_z;
-        }
-        glutPostRedisplay();
-    } else if (key == 'j') { // rotate lower arm anticlockwise around x axis
-        struct Bone * bone = bones[1];
-        float newAngle_x = bone->angle_x + rotDelta;
-        if (newAngle_x >= bone->minAngle_x && newAngle_x <= bone->maxAngle_x) {
-            bone->angle_x = newAngle_x;
-        }
-        glutPostRedisplay();
-    } else if (key == 'k') { // rotate lower arm anticlockwise around y axis
-        struct Bone * bone = bones[1];
-        float newAngle_y = bone->angle_y + rotDelta;
-        if (newAngle_y >= bone->minAngle_y && newAngle_y <= bone->maxAngle_y) {
-            bone->angle_y = newAngle_y;
-        }
-        glutPostRedisplay();  
-    } else if (key == 'o') { // rotate hand anticlockwise around z axis
-        for(int i = 2; i < 7; i++) {
-            struct Bone * bone = bones[i];
-            float newAngle_z = bone->angle_z + rotDelta;
-            if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-                bone->angle_z = newAngle_z;
-            }
-        }
-        glutPostRedisplay();       
-    } else if (key == 'u') { // rotate hand anticlockwise around x axis
-        for(int i = 2; i < 7; i++) {
-            struct Bone * bone = bones[i];
-            float newAngle_x = bone->angle_x - rotDelta;
-            if (newAngle_x >= bone->minAngle_x && newAngle_x <= bone->maxAngle_x) {
-                bone->angle_x = newAngle_x;
-            }
-        } 
-        glutPostRedisplay();      
-    } else if (key == 'i') { // rotate hand anticlockwise around y axis
-        for(int i = 2; i < 7; i++) {
-            struct Bone * bone = bones[i];
-            float newAngle_y = bone->angle_y - rotDelta;
-            if (newAngle_y >= bone->minAngle_y && newAngle_y <= bone->maxAngle_y) {
-                bone->angle_y = newAngle_y;
-            }
-        } 
-        glutPostRedisplay();      
     }
 }
 
@@ -324,7 +313,7 @@ int main(int argc, char** argv) {
     glutMouseFunc(mouseFunc);
     glutMotionFunc(motionFunc);
     glutDisplayFunc(display);
-    glutTimerFunc(100, timerFunc, 0);
+    // glutTimerFunc(100, timerFunc, 0);
     glutMainLoop();
     return 0;
 }
