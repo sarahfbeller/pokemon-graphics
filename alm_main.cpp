@@ -109,11 +109,33 @@ void drawCharacter(){
     shader1->SetUniform("z_postion", z_postion);
     shader1->SetUniform("facing_angle", facing_angle);
 
-    // for each (Face f in p->obj_faces)
-    //     DrawTriangle(f, *p);
+    for(int f = 0; f < (p->obj_faces).size(); f++){
+        Face cur_face = p->obj_faces.at(f);
+        std::vector < Index > indices = cur_face.indices;
 
-    for(int i = 0; i < (p->obj_faces).size(); i++)
-        DrawTriangle(p->obj_faces[i], *p);
+        if(p->text)
+            init(p->mat_map[cur_face.mat_id].texture);
+
+        glBegin(GL_TRIANGLES);
+            for (int i = 0; i < 3; i++){
+                Vertex * v = &p->obj_vertices[indices[i].v_ind];
+                if (p->text) {
+                    Texture * t = &p->obj_textures[indices[i].vt_ind];
+                    glTexCoord2f(t->text_1, 1 - t->text_2);
+                }
+                if(p->norm){
+                    Normal * n = &p->obj_normals[indices[i].vn_ind];
+                    glNormal3f(n->n_x, n->n_y, n->n_z);                        
+                } else {
+                    Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
+
+                    glNormal3f(n->n_x, n->n_y, n->n_z);                    
+                }
+                glVertex3f(v->x_val, v->y_val, v->z_val);                
+            }
+        glEnd();
+        // DrawTriangle(p->obj_faces[i], *p);
+    }
 
 
     // for ( int i = 0; i < FACES.size(); i ++){

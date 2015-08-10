@@ -11,9 +11,9 @@
 #include <GLUT/glut.h>
 #include "SimpleImage.h"
 
-float lx = 0.1f, lz = -1.0f, ly = -0.15f;
-float x = -0.1f, z = 1.0f, y = 0.15f;
-float angle = 0;
+// float lx = 0.1f, lz = -1.0f, ly = -0.15f;
+// float x = -0.1f, z = 1.0f, y = 0.15f;
+// float angle = 0;
 
 struct Normal{
     float a, b, c;
@@ -68,6 +68,7 @@ std::vector<Triangle_face> read_faces(const std::string& filename) {
         std::string s;
 
         while (ifs >> type) {
+
             if(type == '#'){
                 getline(ifs, s); 
                 continue;
@@ -131,6 +132,7 @@ std::vector<Triangle_face> read_faces(const std::string& filename) {
             }
         }
     }
+    ifs.close();
     return FACES;
 
 }
