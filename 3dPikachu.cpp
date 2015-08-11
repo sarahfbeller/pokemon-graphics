@@ -18,15 +18,13 @@ std::vector<struct Bone *> bones; // bones[0] = root
 
 // indices into bones array for skeleton bones
 #define TORSO 0
-#define LEFTSHOULDER 1
-#define RIGHTSHOULDER 2
-#define LEFTARM 3
-#define RIGHTARM 4
-#define LEFTLEG 5
-#define RIGHTLEG 6
-#define HEAD 7
-#define LEFTEAR 8
-#define RIGHTEAR 9
+#define LEFTARM 1
+#define RIGHTARM 2
+#define LEFTLEG 3
+#define RIGHTLEG 4
+#define HEAD 5
+#define LEFTEAR 6
+#define RIGHTEAR 7
 
 // amount to add to rotation/translation with each frame / keystroke
 float rotDelta = 0.05; // in degrees
@@ -74,8 +72,6 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
 void makeBones() {
     bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
-    struct Bone *leftShoulder = new struct Bone;
-    struct Bone *rightShoulder = new struct Bone;
     struct Bone *leftArm = new struct Bone;
     struct Bone *rightArm = new struct Bone;
     struct Bone *leftLeg = new struct Bone;
@@ -85,8 +81,8 @@ void makeBones() {
     struct Bone *rightEar = new struct Bone;
 
     std::vector<struct Bone *> children;
-    children.push_back(leftShoulder);
-    children.push_back(rightShoulder);
+    children.push_back(leftArm);
+    children.push_back(rightArm);
     children.push_back(head);
     children.push_back(leftLeg);
     children.push_back(rightLeg);
@@ -95,30 +91,20 @@ void makeBones() {
     makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    // left shoulder
-    children.clear();
-    children.push_back(leftArm);
-    makeBone(leftShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    // right shoulder
-    children[0] = rightArm;
-    makeBone(rightShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // head
-    children[0] = leftEar;
+    children.clear();
+    children.push_back(leftEar);
     children.push_back(rightEar);
     makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
             children, RGBColor(229/255.f, 228/255.f, 52/255.f));
     // arms
     children.clear();
-    makeBone(leftArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 50.0, 0.0, 170.0, 
+    makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    makeBone(rightArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -50.0, -170.0, 0.0, 
+    makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // legs
     makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
@@ -127,7 +113,6 @@ void makeBones() {
     makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -160.0, -90.0, -180.0, 
             children, RGBColor(0.0, 0.0, 1.0));
-
     // ears
     makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 
@@ -138,8 +123,6 @@ void makeBones() {
 
 
     bones.push_back(torso);
-    bones.push_back(leftShoulder);
-    bones.push_back(rightShoulder);
     bones.push_back(leftArm);
     bones.push_back(rightArm);
     bones.push_back(leftLeg);
@@ -248,8 +231,6 @@ void walk() {
 
     if (currTime <= t0+dt) {
         deltaAngle += t0BodyAngle - currBodyRotation;
-    //} else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
-        //deltaAngle += t1LegAngle - currBodyRotation;
     } else if (currTime >= t2) {
         deltaAngle += t2BodyAngle - currBodyRotation;
         currTime = t0;
@@ -269,11 +250,13 @@ void walk() {
     glutPostRedisplay();
 }
 
+/* Moves in direction of walking. */
 void goForward() {
     glTranslatef(0.0, 0.0, transDelta);
     glutPostRedisplay();
 }
 
+/* Head sways from side to side. */
 void shakeHead() {
     float t0 = 0.0;
     float t1 = 1.0;
