@@ -12,6 +12,7 @@
 #include <cmath>
 #include "draw_triangle.h"
 #include "parser.h"
+// #include "SimpleTexture.h"
 
 // =================== Element Shaders ====================== //
     SimpleShaderProgram *shader1;
@@ -38,19 +39,22 @@ int State;
 int X;
 int Y;
 
-float x_position = 1.0;
-float vert_camera_pos = 1.0;
-float z_postion = 1.0;
+float x_position        = 0.0;
+float z_position        = 0.0;
+float vert_camera_pos   = 1.0;
+float angle             = 0.f;
+float facing_angle      = 0.f;
 
 float ground_level  = 0.f;
 float quad_height   = 8.0f;
 float quad_size     = 30.0f;
 
-float facing_angle     = 0;
-
 float lx = 0.1f, lz = -1.0f, ly = -0.15f;
 float x = -0.1f, z = 1.0f, y = 0.15f;
-float angle = 0;
+static SimpleImage texPNG;
+
+
+// SimpleTexture * texture;
 
 
 // ====================== Draw Scene Helpers ================= //
@@ -103,18 +107,22 @@ void drawWalls(){
 }
 
 void drawCharacter(){
-    shader1->Bind();
-    shader1->SetUniform("x_position", x_position);
-    shader1->SetUniform("z_postion", z_postion);
-    shader1->SetUniform("facing_angle", facing_angle);
+    glPushMatrix();
+    glTranslatef(-x_position, 0, -z_position);
+    glRotatef(facing_angle, 0, 1, 0);
+    glTranslatef(x_position, 0, z_position);
+    
+    // shader1->Bind();
+    // shader1->SetUniform("x_position", x_position);
+    // shader1->SetUniform("z_position", z_position);
+    // shader1->SetUniform("facing_angle", facing_angle);
 
     for(int f = 0; f < (p->obj_faces).size(); f++){
         Face cur_face = p->obj_faces.at(f);
         std::vector <Index> indices = cur_face.indices;
 
-        if(p->text){
+        if(p->text && p->mat_map[cur_face.mat_id].texture != "")
             mtl_init(p->mat_map[cur_face.mat_id].texture);
-        }
 
         glBegin(GL_TRIANGLES);
             for (int i = 0; i < 3; i++){
@@ -130,19 +138,21 @@ void drawCharacter(){
                     Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
-                glVertex3f(v->x_val, v->y_val, v->z_val);
+                glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
             }
         glEnd();
-    }
 
-    shader1->UnBind();  
+    }
+    if(p->text)
+        glDisable(GL_TEXTURE_2D);
+
+    // shader1->UnBind();  
+    glPopMatrix();
 }
 
 
 // ========================= Drawing Wrapper ================== //
 void DrawingWrapper(){
-    // glColor3f(1.0, 0.0, 0.0);
-    // glLoadIdentity();             /* clear the matrix */
     glRotatef(angle, 0, 1, 0);
     // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
     gluLookAt(0.0f, vert_camera_pos, z, 0.0f, 0.0f + ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
@@ -176,8 +186,7 @@ void SetupCamera() {
         0.0, 1.0, 0.0);
 }
 
-void SetupWrapper()
-{
+void SetupWrapper(){
     shader1 = new SimpleShaderProgram();
     shader1->LoadVertexShader(vertexShader);
     shader1->LoadFragmentShader(fragmentShader);
@@ -254,6 +263,11 @@ void KeyCallback(unsigned char key, int x, int y){
     case ',':
         vert_camera_pos -= .1f;
         break;    
+    case 'm':
+        facing_angle -= 5.f;
+        break;
+    case '.':
+        facing_angle += 5.f;
 
     // Move Character
     case 's':
@@ -263,16 +277,16 @@ void KeyCallback(unsigned char key, int x, int y){
         x_position += .1f;
         break;
     case 'e':
-        z_postion += .1f;
+        z_position += .1f;
         break;
     case 'x':
-        z_postion -= .1f;
+        z_position -= .1f;
         break;    
 
     // Reset Character Position
     case 'a':
         x_position = 1.0;
-        z_postion = 1.0;
+        z_position = 1.0;
     default:
         break;
     }
@@ -326,7 +340,7 @@ void TransformCallback(int curr_x, int curr_y) {
 // ========================= Main =========================== //
 int main(int argc, char** argv){
     if(!(argc == 2)){
-        printf("usage: ./alm <mesh> \n");
+        printf("usage: ./3dPokemon <mesh> \n");
         return 0;
     }
 

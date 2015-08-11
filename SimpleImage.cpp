@@ -65,7 +65,7 @@ SimpleImage::SimpleImage(int width, int height, unsigned char* data) {
 
 
 SimpleImage::~SimpleImage() {
-  if (_data) { delete[] _data; }
+  // if (_data) { delete[] _data; }
 }
 
 bool SimpleImage::empty() const {

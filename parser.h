@@ -102,8 +102,8 @@ public:
 					continue;
 				} else if (strcmp(arguments,"mtllib") == 0) {
 					arguments = strtok (NULL, " \r");
-					char file_name[80];
-					strcpy(file_name, "meshes/");
+					char file_name[80] = "meshes/";
+					// strcpy(file_name, "meshes/");
 					strcat(file_name, arguments);
 					mat_map = read_mtl(file_name);
 				}

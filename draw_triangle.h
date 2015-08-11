@@ -4,6 +4,7 @@
 
 std::string curr_tex;
 GLuint textureID;
+static SimpleImage texture;
 
 // set up the texture settings
 void mtl_init (std::string& filename) {
@@ -15,8 +16,7 @@ void mtl_init (std::string& filename) {
 	else 
 		curr_tex = filename;                   // is already set, don't change it
 
-	std::cout << "Setting texture " << filename << std::endl;
-	SimpleImage texture(filename);
+	texture = SimpleImage(filename);
 	
 	int w = texture.width();
 	int h = texture.height();
