@@ -41,6 +41,7 @@ float dt = 0.01;
 float currTime = 0.0;
 bool isWalking = false;
 bool goingForward = false;
+float currBodyRotation = 0.0;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -211,31 +212,56 @@ void drawBone(struct Bone *bone, bool isRoot) {
     glPopMatrix();
 }
 
+/* Makes skeleton walk: legs move and body sways as Pikachu waddles. */
 void walk() {
     float t0 = 0.0;
     float t1 = 1.0;
     float t2 = 2.0;
-    float t0angle = -20.0;
-    float t1angle = 20.0;
-    float t2angle = -20.0;
+    float t0LegAngle = -20.0;
+    float t1LegAngle = 20.0;
+    float t2LegAngle = -20.0;
 
-    struct Bone *bone = bones[LEFTLEG];
+    float newAngle = 0.0;
     if (currTime <= t0+dt) {
-        bone->angle_y = t0angle;
+        newAngle = t0LegAngle;
     } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
-        bone->angle_y = t1angle;
+        newAngle = t1LegAngle;
     } else if (currTime >= t2) {
-        bone->angle_y = t2angle;
+        newAngle = t2LegAngle;
         currTime = t0;
     } else {
         if (currTime < t1) {
-            bone->angle_y = ((currTime/(t1-t0))*(t1angle-t0angle)) + t0angle;
+            newAngle = ((currTime/(t1-t0))*(t1LegAngle-t0LegAngle)) + t0LegAngle;
         } else if (currTime < t2) {
-            bone->angle_y = (((currTime-t1)/(t2-t1))*(t2angle-t1angle)) + t1angle;
+            newAngle = (((currTime-t1)/(t2-t1))*(t2LegAngle-t1LegAngle)) + t1LegAngle;
         }
     }
+    bones[LEFTLEG]->angle_y = newAngle;
+    bones[RIGHTLEG]->angle_y = -1*newAngle;
 
-    bones[RIGHTLEG]->angle_y = -1*bone->angle_y;
+    float t0BodyAngle = 2.0;
+    float t1BodyAngle = -2.0;
+    float t2BodyAngle = 2.0;
+    float deltaAngle = 90.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0BodyAngle - currBodyRotation;
+    } else if (currTime >= t2) {
+        deltaAngle += t2BodyAngle - currBodyRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
+        }
+        deltaAngle += newAngle - currBodyRotation;
+    }
+    currBodyRotation += deltaAngle;
+    // glRotatef(deltaAngle, 0.0, 0.0, 1.0);
+    bones[TORSO]->angle_z = currBodyRotation;
+
     currTime += dt;
     glutPostRedisplay();
 }
