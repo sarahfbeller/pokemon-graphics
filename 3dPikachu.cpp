@@ -37,8 +37,10 @@ int Y = 0;
 bool isClicked = false;
 float rot_z = 0.0;
 // globals for keyframe animation
+float dt = 0.01;
 float currTime = 0.0;
-bool isAnimated = false;
+bool isWalking = false;
+bool goingForward = false;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -216,7 +218,6 @@ void walk() {
     float t0angle = -20.0;
     float t1angle = 20.0;
     float t2angle = -20.0;
-    float dt = 0.01;
 
     struct Bone *bone = bones[LEFTLEG];
     if (currTime <= t0+dt) {
@@ -239,10 +240,16 @@ void walk() {
     glutPostRedisplay();
 }
 
+void goForward() {
+    glTranslatef(0.0, 0.0, transDelta);
+    glutPostRedisplay();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-    if (isAnimated) walk();
+    if (isWalking) walk();
+    if (goingForward) goForward();
     drawBone(bones[0], true);
     glFlush();
     glutSwapBuffers();
@@ -263,13 +270,16 @@ void keyFunc(unsigned char key, int x, int y) {
             bone->angle_z = newAngle_z;
         }
         glutPostRedisplay();
-    } if (key == 'a') { // animate scene
-        isAnimated = !isAnimated;
+    } else if (key == 'w') { // start/stop walking
+        isWalking = !isWalking;
         currTime = 0.0;
         glutPostRedisplay();
-    } if (key == 'r') { // rotate scene by 90 degrees around y axis
+    } else if (key == 'r') { // rotate scene by 90 degrees around y axis
         glTranslatef(0.5, 0.0, 0.0);
         glRotatef(90.0, 0.0, 1.0, 0.0);
+        glutPostRedisplay();
+    } else if (key == 'f') { // move/stop moving forward
+        goingForward = !goingForward;
         glutPostRedisplay();
     }
 }
