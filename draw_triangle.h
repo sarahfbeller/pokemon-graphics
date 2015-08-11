@@ -6,7 +6,7 @@ std::string curr_tex;
 GLuint textureID;
 
 // set up the texture settings
-void init(std::string& filename) {
+void mtl_init (std::string& filename) {
 	
 	if (filename == "") return;
 
@@ -15,6 +15,7 @@ void init(std::string& filename) {
 	else 
 		curr_tex = filename;                   // is already set, don't change it
 
+	std::cout << "Setting texture " << filename << std::endl;
 	SimpleImage texture(filename);
 	
 	int w = texture.width();
@@ -23,19 +24,18 @@ void init(std::string& filename) {
 	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, texture.data());
 	
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-// given a face and an initialied parser object draws the face
+// given a face and an mtl_init ialied parser object draws the face
 void DrawTriangle(Face& f, Parser& p) {
 	
-	// init texture settings if texture provided
-	if (p.text == 1) init(p.mat_map[f.mat_id].texture);
+	// mtl_init  texture settings if texture provided
+	if (p.text == 1) mtl_init (p.mat_map[f.mat_id].texture);
 	
 	glBegin(GL_TRIANGLES);
 

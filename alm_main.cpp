@@ -110,10 +110,11 @@ void drawCharacter(){
 
     for(int f = 0; f < (p->obj_faces).size(); f++){
         Face cur_face = p->obj_faces.at(f);
-        std::vector < Index > indices = cur_face.indices;
+        std::vector <Index> indices = cur_face.indices;
 
-        if(p->text)
-            init(p->mat_map[cur_face.mat_id].texture);
+        if(p->text){
+            mtl_init(p->mat_map[cur_face.mat_id].texture);
+        }
 
         glBegin(GL_TRIANGLES);
             for (int i = 0; i < 3; i++){
@@ -124,12 +125,12 @@ void drawCharacter(){
                 }
                 if(p->norm){
                     Normal * n = &p->obj_normals[indices[i].vn_ind];
-                    glNormal3f(n->n_x, n->n_y, n->n_z);                        
+                    glNormal3f(n->n_x, n->n_y, n->n_z);    
                 } else {
                     Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
-                glVertex3f(v->x_val, v->y_val, v->z_val);                
+                glVertex3f(v->x_val, v->y_val, v->z_val);
             }
         glEnd();
     }
@@ -145,8 +146,8 @@ void DrawingWrapper(){
     glRotatef(angle, 0, 1, 0);
     // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
     gluLookAt(0.0f, vert_camera_pos, z, 0.0f, 0.0f + ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     drawGround();
     drawWalls();
@@ -223,8 +224,7 @@ void ReshapeCallback(int w, int h){
     glLoadIdentity();
 }
 
-void KeyCallback(unsigned char key, int x, int y)
-{
+void KeyCallback(unsigned char key, int x, int y){
     switch(key) {
     case 'q':
         exit(0);

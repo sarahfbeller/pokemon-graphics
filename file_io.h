@@ -133,6 +133,7 @@ std::vector<Triangle_face> read_faces(const std::string& filename) {
         }
     }
     ifs.close();
+    std::cout << FACES.size() << std::endl;
     return FACES;
 
 }

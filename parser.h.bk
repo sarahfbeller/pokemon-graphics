@@ -81,19 +81,16 @@ public:
 	bool load_file(const std::string& filename) {
 		norm = false;
 		text = false;
-		obj_vertices.clear();
-	    std::ifstream ifs(filename.c_str());
-	    if(!ifs.is_open()){
-	    	std::cout << "Error opening mesh file " << filename << std::endl;
-	    	return false;
-	    }
+		std::ifstream ifs (filename.c_str(), std::ifstream::in);
 
 		char c;
 		float x, y, z;
+		int i;
 		std::string next_line = "";
 		std::string curr_mat = "";
 
 		while (getline(ifs, next_line)) {
+			float x, y, z;
 			if(next_line[0] != '#' && next_line.length() > 0){
 				char *str = new char[next_line.length() + 1];
 				strcpy(str, next_line.c_str());
@@ -145,6 +142,7 @@ public:
 					Face *f = new Face();
 					f->mat_id = curr_mat;
 					Index *ind = new Index();
+					int counter = 0;
 		
 					// will definitely be x, y, z
 					for(int i = 0; i < 3; i++){
@@ -152,19 +150,17 @@ public:
 
 						if((char*)strchr(arguments, '/') == NULL){
 							ind->v_ind = strtof(arguments, NULL) - 1;
-
 						} else {
 							int pos = strchr(arguments, '/') - arguments;
-							char vert[32] = "";
+							char vert[32];
 							memcpy(vert, arguments, pos);      
 							ind->v_ind = strtof(vert, NULL) - 1;
 							arguments += pos + 1;
-
 							if((char*)strchr(arguments, '/') == NULL){
 								ind->vt_ind = strtof(arguments, NULL) - 1;
 							} else {
 								int pos = strchr(arguments, '/') - arguments;
-								char vert[32] = "";
+								char vert[32];
 								memcpy(vert, arguments, pos);      
 								ind->vt_ind = strtof(vert, NULL) - 1;
 								ind->vn_ind = strtof(&arguments[pos + 1], NULL) - 1;
@@ -178,7 +174,7 @@ public:
 					delete f;
 					delete ind;
 				}
-				delete [] str;
+			delete [] str;
 			}
 
 		}

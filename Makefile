@@ -8,7 +8,10 @@ T1 := 3dPikachu
 FILES1   := alm_main SimpleImage stb 
 
 # For 3dmotion testing
-# FILES1   := 3dPikachu SimpleImage stb 
+# FILES1   := 3dPikachu SimpleImage stb  
+
+
+# FILES1   := main SimpleImage stb  
 
 #################################################################
 

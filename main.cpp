@@ -1,5 +1,5 @@
 
-#include "main.h"
+#include "alm_main.h"
 #ifdef WIN32
 #define ssize_t SSIZE_T
 #endif
@@ -75,9 +75,11 @@ void Draw() {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	for each (Face f in p->obj_faces) {
-		DrawTriangle(f, *p);
-	}
+    for(int i = 0; i < p->obj_faces.size(); i++)
+        DrawTriangle(p->obj_faces[i], *p);
+	// for each (Face f in p->obj_faces) {
+	// 	DrawTriangle(f, *p);
+	// }
 
 }
 
@@ -178,25 +180,26 @@ int main(int argc, char** argv){
     //
     // Initialize GLEW.
     //
-#if !defined(__APPLE__) && !defined(__linux__)
-    glewInit();
-    if(!GLEW_VERSION_2_0) {
-        printf("Your graphics card or graphics driver does\n"
-               "\tnot support OpenGL 2.0, trying ARB extensions\n");
+    #if !defined(__APPLE__) && !defined(__linux__)
+        glewInit();
+        if(!GLEW_VERSION_2_0) {
+            printf("Your graphics card or graphics driver does\n"
+                   "\tnot support OpenGL 2.0, trying ARB extensions\n");
 
-        if(!GLEW_ARB_vertex_shader || !GLEW_ARB_fragment_shader) {
-            printf("ARB extensions don't work either.\n");
-            printf("\tYou can try updating your graphics drivers.\n"
-                   "\tIf that does not work, you will have to find\n");
-            printf("\ta machine with a newer graphics card.\n");
-            exit(1);
+            if(!GLEW_ARB_vertex_shader || !GLEW_ARB_fragment_shader) {
+                printf("ARB extensions don't work either.\n");
+                printf("\tYou can try updating your graphics drivers.\n"
+                       "\tIf that does not work, you will have to find\n");
+                printf("\ta machine with a newer graphics card.\n");
+                exit(1);
+            }
         }
-    }
-#endif
+    #endif
 	Setup();
 	p = new Parser();
-	p->load_file("meshes/Ninetales/Ninetales.obj");
- 
+	// p->load_file("meshes/Ninetales/Ninetales.obj");
+    p->load_file("meshes/Eevee.obj");
+
     glutDisplayFunc(DisplayCallback);
 	glutMouseFunc(mouse);
 	glutMotionFunc(transform);
