@@ -41,7 +41,9 @@ float dt = 0.01;
 float currTime = 0.0;
 bool isWalking = false;
 bool goingForward = false;
+bool headShaking = false;
 float currBodyRotation = 0.0;
+float currHeadRotation = 0.0;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -246,6 +248,8 @@ void walk() {
 
     if (currTime <= t0+dt) {
         deltaAngle += t0BodyAngle - currBodyRotation;
+    //} else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        //deltaAngle += t1LegAngle - currBodyRotation;
     } else if (currTime >= t2) {
         deltaAngle += t2BodyAngle - currBodyRotation;
         currTime = t0;
@@ -259,7 +263,6 @@ void walk() {
         deltaAngle += newAngle - currBodyRotation;
     }
     currBodyRotation += deltaAngle;
-    // glRotatef(deltaAngle, 0.0, 0.0, 1.0);
     bones[TORSO]->angle_z = currBodyRotation;
 
     currTime += dt;
@@ -271,11 +274,43 @@ void goForward() {
     glutPostRedisplay();
 }
 
+void shakeHead() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0HeadAngle = 5.0;
+    float t1HeadAngle = -5.0;
+    float t2HeadAngle = 5.0;
+    float deltaAngle = 0.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0HeadAngle - currHeadRotation;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        deltaAngle += t1HeadAngle - currHeadRotation;
+    }else if (currTime >= t2) {
+        deltaAngle += t2HeadAngle - currHeadRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime <= t1) {
+            newAngle = ((currTime/(t1-t0))*(t1HeadAngle-t0HeadAngle)) + t0HeadAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2HeadAngle-t1HeadAngle)) + t1HeadAngle;
+        }
+        deltaAngle += newAngle - currHeadRotation;
+    }
+    currHeadRotation += deltaAngle;
+    bones[HEAD]->angle_z = currHeadRotation;
+    if (!isWalking) currTime += dt;
+    glutPostRedisplay();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
     if (isWalking) walk();
     if (goingForward) goForward();
+    if (headShaking) shakeHead();
     drawBone(bones[0], true);
     glFlush();
     glutSwapBuffers();
@@ -306,6 +341,9 @@ void keyFunc(unsigned char key, int x, int y) {
         glutPostRedisplay();
     } else if (key == 'f') { // move/stop moving forward
         goingForward = !goingForward;
+        glutPostRedisplay();
+    } else if (key == 'h') { // move/stop moving head
+        headShaking = !headShaking;
         glutPostRedisplay();
     }
 }
