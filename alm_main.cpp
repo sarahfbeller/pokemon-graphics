@@ -410,7 +410,7 @@ void makeBones() {
 }
 
 void SetupWrapper(){
-    makeBones();
+    // makeBones();
 
     shader1 = new SimpleShaderProgram();
     shader1->LoadVertexShader(vertexShader);
@@ -442,14 +442,17 @@ void SetupWrapper(){
     skyIMG = SimpleImage(sky_file_name);
     int sw = skyIMG.width();
     int sh = skyIMG.height();
-    std::cout<<bones.size()<<std::endl;
+    // std::cout<<bones.size()<<std::endl;
     glGenTextures(3, &skyImgID);
-    std::cout<<bones.size()<<std::endl;
+    // std::cout<<bones.size()<<std::endl;
     glBindTexture(GL_TEXTURE_2D, skyImgID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sw, sh, 0, GL_RGB, GL_FLOAT, skyIMG.data());
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
+    // makeBones();
+    // std::cout<<bones.size()<<std::endl;
+    
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();
     SetupLighting();
