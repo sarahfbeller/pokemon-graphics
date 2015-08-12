@@ -135,6 +135,7 @@ void drawWalls(){
 
 void drawCharacter(){
     glPushMatrix();
+    // facing direction
     glTranslatef(-x_position, 0, -z_position);
     glRotatef(facing_angle, 0, 1, 0);
     glTranslatef(x_position, 0, z_position);
@@ -145,7 +146,7 @@ void drawCharacter(){
         std::vector <Index> indices = cur_face.indices;
 
         if(p->text && p->mat_map[cur_face.mat_id].texture != ""){
-            mtl_init(p->mat_map[cur_face.mat_id].texture);
+            mtl_init(p->mat_map[cur_face.mat_id].texture); // for cow
         } else {
             shader1->Bind();
             shader1->SetUniform("x_position", x_position);
@@ -168,6 +169,18 @@ void drawCharacter(){
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
                 glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
+
+                // Sarah gets animation code integrated into this file
+                // Sarah gets bones into floats offset_x, y, z
+                // Sarah makes function to turn offsets into 3x3 matrix
+                // Erin figures out the below transform functions
+                    // to take in bone and matrix and transform vertex.
+                // Later Sarah figures out how to set bone for each vertex
+
+                // float x_transformed = transformX(v->x_val);
+                // float y_transformed = transformY(v->y_val);
+                // float z_transformed = transformZ(v->z_val);
+                // glVertex3f(x_transformed + x_position, y_transformed, z_transformed + z_position);
             }
         glEnd();
 

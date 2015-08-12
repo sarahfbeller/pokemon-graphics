@@ -16,6 +16,13 @@ struct Bone {
 };
 std::vector<struct Bone *> bones; // bones[0] = root
 
+vertex {
+    x,y,z
+    int boneIndex;
+    offsetFromBone x, y, z
+    angle from bone x, y, z
+}
+
 // indices into bones array for skeleton bones
 #define TORSO 0
 #define LEFTARM 1
