@@ -47,37 +47,64 @@ float facing_angle      = 0.f;
 
 float ground_level  = 0.f;
 float quad_height   = 8.0f;
-float quad_size     = 30.0f;
+float quad_size     = 50.0f;
 
 float lx = 0.1f, lz = -1.0f, ly = -0.15f;
 float x = -0.1f, z = 1.0f, y = 0.15f;
 static SimpleImage texPNG;
 
+std::string ground_file_name = "meshes/Textures/stone.jpg";
+static SimpleImage groundIMG;
+GLuint groundImgID;
 
-// SimpleTexture * texture;
-
+std::string sky_file_name = "meshes/Textures/sky2.jpg";
+static SimpleImage skyIMG;
+GLuint skyImgID;
 
 // ====================== Draw Scene Helpers ================= //
 void drawGround(){
-    groundShader->Bind();
+    glPushMatrix();
+    // groundShader->Bind();
+    // mtl_init(groundIMG);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, groundImgID);
     glBegin(GL_QUADS);
+        glTexCoord2f(1.f, 0.f);
         glVertex3f(-quad_size, ground_level, quad_size);
+        glTexCoord2f(1.f, 1.f);
         glVertex3f(quad_size, ground_level, quad_size);
+        glTexCoord2f(0.f, 1.f);
         glVertex3f(quad_size, ground_level, -quad_size);
+        glTexCoord2f(0.f, 0.f);
         glVertex3f(-quad_size, ground_level, -quad_size);
     glEnd();
-    groundShader->UnBind();
+    glDisable(GL_TEXTURE_2D);
+    // groundShader->UnBind();
+    glPopMatrix();
+
 }
 
 void drawSky(){
-    skyShader->Bind();
+    glPushMatrix();
+    // skyShader->Bind();
+    // mtl_init(sky_file_name);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, skyImgID);
+
     glBegin(GL_QUADS);
+        glTexCoord2f(0.f, 0.f);
         glVertex3f(-quad_size, quad_height, -quad_size);
+        glTexCoord2f(0.f, 1.f);
         glVertex3f(quad_size, quad_height, -quad_size);
+        glTexCoord2f(1.f, 1.f);
         glVertex3f(quad_size, quad_height, quad_size);
+        glTexCoord2f(1.f, 0.f);
         glVertex3f(-quad_size, quad_height, quad_size);
     glEnd();
-    skyShader->UnBind();
+    glDisable(GL_TEXTURE_2D);
+
+    glPopMatrix();
 }
 
 void drawWalls(){
@@ -112,17 +139,19 @@ void drawCharacter(){
     glRotatef(facing_angle, 0, 1, 0);
     glTranslatef(x_position, 0, z_position);
     
-    // shader1->Bind();
-    // shader1->SetUniform("x_position", x_position);
-    // shader1->SetUniform("z_position", z_position);
-    // shader1->SetUniform("facing_angle", facing_angle);
 
     for(int f = 0; f < (p->obj_faces).size(); f++){
         Face cur_face = p->obj_faces.at(f);
         std::vector <Index> indices = cur_face.indices;
 
-        if(p->text && p->mat_map[cur_face.mat_id].texture != "")
+        if(p->text && p->mat_map[cur_face.mat_id].texture != ""){
             mtl_init(p->mat_map[cur_face.mat_id].texture);
+        } else {
+            shader1->Bind();
+            shader1->SetUniform("x_position", x_position);
+            shader1->SetUniform("z_position", z_position);
+            shader1->SetUniform("facing_angle", facing_angle);
+        }
 
         glBegin(GL_TRIANGLES);
             for (int i = 0; i < 3; i++){
@@ -143,10 +172,12 @@ void drawCharacter(){
         glEnd();
 
     }
-    if(p->text)
-        glDisable(GL_TEXTURE_2D);
+    // if(p->text){
+    //     glDisable(GL_TEXTURE_2D);
+    // } else {
+        shader1->UnBind();  
+    // }
 
-    // shader1->UnBind();  
     glPopMatrix();
 }
 
@@ -201,10 +232,30 @@ void SetupWrapper(){
 
     skyShader = new SimpleShaderProgram();
     skyShader->LoadVertexShader(skyVertexShader);
-    skyShader->LoadFragmentShader(skyFragmentShader);        
+    skyShader->LoadFragmentShader(skyFragmentShader);     
+
+    glEnable(GL_TEXTURE_2D);
+
+    groundIMG = SimpleImage(ground_file_name);
+    int gw = groundIMG.width();
+    int gh = groundIMG.height();
+    glGenTextures(2, &groundImgID);
+    glBindTexture(GL_TEXTURE_2D, groundImgID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gw, gh, 0, GL_RGB, GL_FLOAT, groundIMG.data());
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    skyIMG = SimpleImage(sky_file_name);
+    int sw = skyIMG.width();
+    int sh = skyIMG.height();
+    glGenTextures(3, &skyImgID);
+    glBindTexture(GL_TEXTURE_2D, skyImgID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sw, sh, 0, GL_RGB, GL_FLOAT, skyIMG.data());
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
     SetupCamera();
     SetupLighting();
     glEnable(GL_DEPTH_TEST);
