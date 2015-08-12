@@ -1,6 +1,6 @@
 # the name of the compiled binary
 
-T1 := 3dPikachu
+T1 := 3dPokemon
 
 # list files to compile and link together
 

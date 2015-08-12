@@ -133,17 +133,7 @@ void makeBones() {
 }
 
 /* recursively draws each bone, then its children */
-void drawBone(struct Bone *bone, bool isRoot) {
-    // rotate entire structure
-    // float newAngle_z = bone->angle_z + rotDelta;
-    // if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-    //     bone->angle_z = newAngle_z;
-    // }
-    // // translate entire structure
-    // if(isRoot) {
-    //     bone->x0 += transDelta;
-    //     bone->y0 += transDelta;
-    // }
+void drawBone(struct Bone *bone) {
     glPushMatrix();
     glTranslatef(bone->x0, bone->y0, bone->z0);
     glRotatef(bone->angle_x, 1.0, 0.0, 0.0);
@@ -192,7 +182,7 @@ void drawBone(struct Bone *bone, bool isRoot) {
     glTranslatef(bone->xdim, 0.0, 0.0);
 
     for(int i = 0; i < bone->children.size(); i++) {
-        drawBone(bone->children[i], false);
+        drawBone(bone->children[i]);
     }
     glPopMatrix();
 }
@@ -294,17 +284,10 @@ void display() {
     if (isWalking) walk();
     if (goingForward) goForward();
     if (headShaking) shakeHead();
-    drawBone(bones[0], true);
+    drawBone(bones[0]);
     glFlush();
     glutSwapBuffers();
 }
-
-// void timerFunc(int v) {
-//     walk();
-//     currTime += 0.01;
-//     glutPostRedisplay();
-//     glutTimerFunc(1, timerFunc, v);
-// }
 
 void keyFunc(unsigned char key, int x, int y) {
     if (key == 'd') { // rotate left leg anticlockwise around z axis
@@ -322,7 +305,11 @@ void keyFunc(unsigned char key, int x, int y) {
         glTranslatef(0.5, 0.0, 0.0);
         glRotatef(90.0, 0.0, 1.0, 0.0);
         glutPostRedisplay();
-    } else if (key == 'f') { // move/stop moving forward
+    } else if (key == 'e') { // rotate scene by 45 degrees around y axis
+        glTranslatef(0.3, 0.0, 0.0);
+        glRotatef(45.0, 0.0, 1.0, 0.0);
+        glutPostRedisplay();
+    } else if (key == 'm') { // move/stop moving forward
         goingForward = !goingForward;
         glutPostRedisplay();
     } else if (key == 'h') { // move/stop moving head
@@ -370,7 +357,6 @@ int main(int argc, char** argv) {
     glutMouseFunc(mouseFunc);
     glutMotionFunc(motionFunc);
     glutDisplayFunc(display);
-    // glutTimerFunc(100, timerFunc, 0);
     glutMainLoop();
     return 0;
 }
