@@ -40,6 +40,7 @@ float currTime = 0.0;
 bool isWalking = false;
 bool goingForward = false;
 bool headShaking = false;
+bool walkingAllFours = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
 
@@ -250,6 +251,11 @@ void walk() {
     glutPostRedisplay();
 }
 
+/* Pikachu walks on all four limbs. */
+void walkOnAllFours() {
+
+}
+
 /* Moves in direction of walking. */
 void goForward() {
     glTranslatef(0.0, 0.0, transDelta);
@@ -294,6 +300,7 @@ void display() {
     if (isWalking) walk();
     if (goingForward) goForward();
     if (headShaking) shakeHead();
+    if (walkingAllFours) walkOnAllFours();
     drawBone(bones[0], true);
     glFlush();
     glutSwapBuffers();
@@ -322,7 +329,11 @@ void keyFunc(unsigned char key, int x, int y) {
         glTranslatef(0.5, 0.0, 0.0);
         glRotatef(90.0, 0.0, 1.0, 0.0);
         glutPostRedisplay();
-    } else if (key == 'f') { // move/stop moving forward
+    } else if (key == 'e') { // rotate scene by 45 degrees around y axis
+        glTranslatef(0.3, 0.0, 0.0);
+        glRotatef(45.0, 0.0, 1.0, 0.0);
+        glutPostRedisplay();
+    } else if (key == 'm') { // move/stop moving forward
         goingForward = !goingForward;
         glutPostRedisplay();
     } else if (key == 'h') { // move/stop moving head
