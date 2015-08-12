@@ -16,13 +16,6 @@ struct Bone {
 };
 std::vector<struct Bone *> bones; // bones[0] = root
 
-vertex {
-    x,y,z
-    int boneIndex;
-    offsetFromBone x, y, z
-    angle from bone x, y, z
-}
-
 // indices into bones array for skeleton bones
 #define TORSO 0
 #define LEFTARM 1
@@ -47,7 +40,6 @@ float currTime = 0.0;
 bool isWalking = false;
 bool goingForward = false;
 bool headShaking = false;
-bool walkingAllFours = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
 
@@ -141,17 +133,7 @@ void makeBones() {
 }
 
 /* recursively draws each bone, then its children */
-void drawBone(struct Bone *bone, bool isRoot) {
-    // rotate entire structure
-    // float newAngle_z = bone->angle_z + rotDelta;
-    // if (newAngle_z >= bone->minAngle_z && newAngle_z <= bone->maxAngle_z) {
-    //     bone->angle_z = newAngle_z;
-    // }
-    // // translate entire structure
-    // if(isRoot) {
-    //     bone->x0 += transDelta;
-    //     bone->y0 += transDelta;
-    // }
+void drawBone(struct Bone *bone) {
     glPushMatrix();
     glTranslatef(bone->x0, bone->y0, bone->z0);
     glRotatef(bone->angle_x, 1.0, 0.0, 0.0);
@@ -200,7 +182,7 @@ void drawBone(struct Bone *bone, bool isRoot) {
     glTranslatef(bone->xdim, 0.0, 0.0);
 
     for(int i = 0; i < bone->children.size(); i++) {
-        drawBone(bone->children[i], false);
+        drawBone(bone->children[i]);
     }
     glPopMatrix();
 }
@@ -258,11 +240,6 @@ void walk() {
     glutPostRedisplay();
 }
 
-/* Pikachu walks on all four limbs. */
-void walkOnAllFours() {
-
-}
-
 /* Moves in direction of walking. */
 void goForward() {
     glTranslatef(0.0, 0.0, transDelta);
@@ -307,18 +284,10 @@ void display() {
     if (isWalking) walk();
     if (goingForward) goForward();
     if (headShaking) shakeHead();
-    if (walkingAllFours) walkOnAllFours();
-    drawBone(bones[0], true);
+    drawBone(bones[0]);
     glFlush();
     glutSwapBuffers();
 }
-
-// void timerFunc(int v) {
-//     walk();
-//     currTime += 0.01;
-//     glutPostRedisplay();
-//     glutTimerFunc(1, timerFunc, v);
-// }
 
 void keyFunc(unsigned char key, int x, int y) {
     if (key == 'd') { // rotate left leg anticlockwise around z axis
@@ -388,7 +357,6 @@ int main(int argc, char** argv) {
     glutMouseFunc(mouseFunc);
     glutMotionFunc(motionFunc);
     glutDisplayFunc(display);
-    // glutTimerFunc(100, timerFunc, 0);
     glutMainLoop();
     return 0;
 }

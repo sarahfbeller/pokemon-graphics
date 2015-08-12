@@ -32,7 +32,7 @@
     std::string skyVertexShader = "kernels/sky.vert";
     std::string skyFragmentShader = "kernels/sky.frag";
 
-
+// ==================== Globals ============================= //
 Parser *p; 
 int Button;
 int State;
@@ -61,7 +61,93 @@ std::string sky_file_name = "meshes/Textures/sky2.jpg";
 static SimpleImage skyIMG;
 GLuint skyImgID;
 
+struct Bone {
+    float x0, y0, z0; // starting position
+    float xdim, ydim, zdim; // x,y,z dimensions of bone
+    float angle_x, minAngle_x, maxAngle_x; // initial angle and limits of motion
+    float angle_y, minAngle_y, maxAngle_y;
+    float angle_z, minAngle_z, maxAngle_z;
+    std::vector<struct Bone *> children;
+    RGBColor color; // remove when complete
+};
+std::vector<struct Bone *> bones; // bones[0] = root
+
+// indices into bones array for skeleton bones
+#define TORSO 0
+#define LEFTARM 1
+#define RIGHTARM 2
+#define LEFTLEG 3
+#define RIGHTLEG 4
+#define HEAD 5
+#define LEFTEAR 6
+#define RIGHTEAR 7
+
+// globals for animation
+float dt = 0.01;
+float currTime = 0.0;
+bool isWalking = false;
+bool goingForward = false;
+bool headShaking = false;
+float currBodyRotation = 0.0;
+float currHeadRotation = 0.0;
+
 // ====================== Draw Scene Helpers ================= //
+
+/* recursively draws each bone, then its children */
+void drawBone(struct Bone *bone) {
+    glPushMatrix();
+    glTranslatef(bone->x0, bone->y0, bone->z0);
+    glRotatef(bone->angle_x, 1.0, 0.0, 0.0);
+    glRotatef(bone->angle_y, 0.0, 1.0, 0.0);
+    glRotatef(bone->angle_z, 0.0, 0.0, 1.0);
+
+    // // makes bones as lines
+    // glBegin(GL_LINES);
+    //     glVertex2f(0.0, 0.0);
+    //     glVertex2f(bone->xdim, 0.0);
+    // glEnd();
+
+    // makes bones as cuboids
+    glColor3f(bone->color.r, bone->color.g, bone->color.b);
+    glBegin(GL_QUADS);
+        glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(0.0, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.5*bone->zdim);
+
+        glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(0.0, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(0.0, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
+
+        glVertex3f(bone->xdim, 0.5*bone->ydim, -0.5*bone->zdim);
+        glVertex3f(bone->xdim, 0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, 0.5*bone->zdim);
+        glVertex3f(bone->xdim, -0.5*bone->ydim, -0.5*bone->zdim);
+    glEnd();
+    glTranslatef(bone->xdim, 0.0, 0.0);
+
+    for(int i = 0; i < bone->children.size(); i++) {
+        drawBone(bone->children[i]);
+    }
+    glPopMatrix();
+}
+
 void drawGround(){
     glPushMatrix();
     // groundShader->Bind();
@@ -206,7 +292,10 @@ void DrawingWrapper(){
     drawGround();
     drawWalls();
     drawSky();
+    // std::cout<<bones.size()<<std::endl;
+    // drawBone(bones[0]);
     drawCharacter();
+    // glFlush();
 }
 
 
@@ -230,7 +319,99 @@ void SetupCamera() {
         0.0, 1.0, 0.0);
 }
 
+void makeBone(struct Bone *bone, float x0, float y0, float z0,
+            float xdim, float ydim, float zdim,
+            float angle_x, float minAngle_x, float maxAngle_x,
+            float angle_y, float minAngle_y, float maxAngle_y,
+            float angle_z, float minAngle_z, float maxAngle_z,
+            std::vector<struct Bone *> children, RGBColor color) {
+    bone->x0 = x0;
+    bone->y0 = y0;
+    bone->z0 = z0;
+    bone->angle_x = angle_x;
+    bone->minAngle_x = minAngle_x;
+    bone->maxAngle_x = maxAngle_x;
+    bone->angle_y = angle_y;
+    bone->minAngle_y = minAngle_y;
+    bone->maxAngle_y = maxAngle_y;
+    bone->angle_z = angle_z;
+    bone->minAngle_z = minAngle_z;
+    bone->maxAngle_z = maxAngle_z;
+    bone->xdim = xdim;
+    bone->ydim = ydim;
+    bone->zdim = zdim;
+    bone->children = children;
+    bone->color = color;
+}
+
+/* First bone added must be root.
+ * Currently makes torso, arms, legs, head, and ears. */
+void makeBones() {
+    bones = std::vector<struct Bone *>();
+    struct Bone *torso = new struct Bone;
+    struct Bone *leftArm = new struct Bone;
+    struct Bone *rightArm = new struct Bone;
+    struct Bone *leftLeg = new struct Bone;
+    struct Bone *rightLeg = new struct Bone;
+    struct Bone *head = new struct Bone;
+    struct Bone *leftEar = new struct Bone;
+    struct Bone *rightEar = new struct Bone;
+
+    std::vector<struct Bone *> children;
+    children.push_back(leftArm);
+    children.push_back(rightArm);
+    children.push_back(head);
+    children.push_back(leftLeg);
+    children.push_back(rightLeg);
+    // torso
+    float torsoLen = 0.4;
+    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
+            0.0, 0.0, 360.0, 90.0, 0.0, 360.0, 
+            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+
+    // head
+    children.clear();
+    children.push_back(leftEar);
+    children.push_back(rightEar);
+    makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
+            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+    // arms
+    children.clear();
+    makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
+            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+    makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
+            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+    // legs
+    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, 
+            children, RGBColor(0.0, 1.0, 0.0));
+    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, 
+            children, RGBColor(0.0, 0.0, 1.0));
+    // ears
+    makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 
+            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+    makeBone(rightEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, 
+            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+
+    bones.push_back(torso);
+    bones.push_back(leftArm);
+    bones.push_back(rightArm);
+    bones.push_back(leftLeg);
+    bones.push_back(rightLeg);
+    bones.push_back(head);
+    bones.push_back(leftEar);
+    bones.push_back(rightEar);
+}
+
 void SetupWrapper(){
+    makeBones();
+
     shader1 = new SimpleShaderProgram();
     shader1->LoadVertexShader(vertexShader);
     shader1->LoadFragmentShader(fragmentShader);
@@ -261,12 +442,13 @@ void SetupWrapper(){
     skyIMG = SimpleImage(sky_file_name);
     int sw = skyIMG.width();
     int sh = skyIMG.height();
+    std::cout<<bones.size()<<std::endl;
     glGenTextures(3, &skyImgID);
+    std::cout<<bones.size()<<std::endl;
     glBindTexture(GL_TEXTURE_2D, skyImgID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sw, sh, 0, GL_RGB, GL_FLOAT, skyIMG.data());
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();
@@ -361,15 +543,12 @@ void KeyCallback(unsigned char key, int x, int y){
 void MouseCallback(int button, int state, int x, int y) {
 
     if (button == GLUT_LEFT_BUTTON) Button = 1;
-
     else if (button == GLUT_RIGHT_BUTTON) Button = 2;
 
     if (state == GLUT_UP) {
         Button = 0;
         //glSaveModelView();
-    }
-
-    else if (state == GLUT_DOWN) {
+    } else if (state == GLUT_DOWN) {
         X = x;
         Y = y;
         glPushMatrix();
@@ -377,7 +556,6 @@ void MouseCallback(int button, int state, int x, int y) {
 }
 
 void TransformCallback(int curr_x, int curr_y) {
-
     int dx = X - curr_x;
     int dy = Y - curr_y;
     if (Button == 1) {
@@ -386,10 +564,7 @@ void TransformCallback(int curr_x, int curr_y) {
         float delta1 = -(dy);
         glRotatef(delta1, 1, 0, 0);
         glRotatef(delta0, 0, 1, 0);
-        
-    }
-
-    else if (Button == 2) {
+    } else if (Button == 2) {
         //zooming based on y-motion
         float scale_val = 1 + 0.005 * (float)dy;
         glScalef(scale_val, scale_val, scale_val);
@@ -417,7 +592,6 @@ int main(int argc, char** argv){
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(640, 480);
     glutCreateWindow("Pokemon");
-
 
     //
     // Initialize GLEW.

@@ -1,14 +1,14 @@
 # the name of the compiled binary
 
-T1 := 3dPikachu
+T1 := 3dPokemon
 
 # list files to compile and link together
 
 # For Amanda's scene rendering testing:
-# FILES1   := alm_main SimpleImage stb 
+FILES1   := alm_main SimpleImage stb 
 
 # For 3dmotion testing
-FILES1   := 3dPikachu SimpleImage stb  
+# FILES1   := 3dPikachu SimpleImage stb  
 
 
 # FILES1   := main SimpleImage stb  
