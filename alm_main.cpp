@@ -53,13 +53,26 @@ float lx = 0.1f, lz = -1.0f, ly = -0.15f;
 float x = -0.1f, z = 1.0f, y = 0.15f;
 static SimpleImage texPNG;
 
-std::string ground_file_name = "meshes/Textures/stone.jpg";
+std::string ground_file_name = "meshes/Textures/stone1.jpg";
 static SimpleImage groundIMG;
 GLuint groundImgID;
 
 std::string sky_file_name = "meshes/Textures/sky2.jpg";
 static SimpleImage skyIMG;
 GLuint skyImgID;
+
+std::string sides_file_name = "meshes/Textures/sides.jpg";
+static SimpleImage sidesIMG;
+GLuint sidesImgID;
+
+// std::string bitches = "meshes/Textures/memchu.jpg";
+static SimpleImage memchuIMG;
+GLuint memchuImgID;
+
+std::string back_file_name = "meshes/Textures/back_quad.jpg";
+static SimpleImage backIMG;
+GLuint backImgID;
+
 
 // ====================== Draw Scene Helpers ================= //
 void drawGround(){
@@ -108,29 +121,68 @@ void drawSky(){
 }
 
 void drawWalls(){
-    wallShader->Bind();
+    // wallShader->Bind();
+    glPushMatrix();
+    glEnable(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, memchuImgID);
     glBegin(GL_QUADS);
+        glTexCoord2f(1.f, 0.f);
         glVertex3f(-quad_size, quad_height, -quad_size);
+        glTexCoord2f(0.f, 0.f);
         glVertex3f(-quad_size, quad_height, quad_size);
+        glTexCoord2f(0.f, 1.f);
         glVertex3f(-quad_size, ground_level, quad_size);
+        glTexCoord2f(1.f, 1.f);
         glVertex3f(-quad_size, ground_level, -quad_size);
+    glEnd();
+    // glPopMatrix();
 
+    // glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, backImgID);
+    glBegin(GL_QUADS);
+        glTexCoord2f(1.f, 1.f);
         glVertex3f(quad_size, ground_level, -quad_size);
+        glTexCoord2f(0.f, 1.f);
         glVertex3f(quad_size, ground_level, quad_size);
+        glTexCoord2f(0.f, 0.f);
         glVertex3f(quad_size, quad_height, quad_size);
+        glTexCoord2f(1.f, 0.f);
         glVertex3f(quad_size, quad_height, -quad_size);
+    glEnd();
+    // glPopMatrix();
 
+    // glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, sidesImgID);
+    glBegin(GL_QUADS);
+        glTexCoord2f(1.f, 1.f);
         glVertex3f(-quad_size, ground_level, -quad_size);
+        glTexCoord2f(0.f, 1.f);
         glVertex3f(quad_size, ground_level, -quad_size);
+        glTexCoord2f(0.f, 0.f);
         glVertex3f(quad_size, quad_height, -quad_size);
+        glTexCoord2f(1.f, 0.f);
         glVertex3f(-quad_size, quad_height, -quad_size);
+    glEnd();
+    // glPopMatrix();
 
+
+    // glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, sidesImgID);
+    glBegin(GL_QUADS);
+        glTexCoord2f(1.f, 0.f);
         glVertex3f(-quad_size, quad_height, quad_size);
+        glTexCoord2f(0.f, 0.f);
         glVertex3f(quad_size, quad_height, quad_size);
+        glTexCoord2f(0.f, 1.f);
         glVertex3f(quad_size, ground_level, quad_size);
+        glTexCoord2f(1.f, 1.f);
         glVertex3f(-quad_size, ground_level, quad_size);
     glEnd();
-    wallShader->UnBind();
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    // wallShader->UnBind();
 }
 
 void drawCharacter(){
@@ -237,23 +289,50 @@ void SetupWrapper(){
     glEnable(GL_TEXTURE_2D);
 
     groundIMG = SimpleImage(ground_file_name);
-    int gw = groundIMG.width();
-    int gh = groundIMG.height();
-    glGenTextures(2, &groundImgID);
-    glBindTexture(GL_TEXTURE_2D, groundImgID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gw, gh, 0, GL_RGB, GL_FLOAT, groundIMG.data());
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+        int w = groundIMG.width();
+        int h = groundIMG.height();
+        glGenTextures(2, &groundImgID);
+        glBindTexture(GL_TEXTURE_2D, groundImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, groundIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
     skyIMG = SimpleImage(sky_file_name);
-    int sw = skyIMG.width();
-    int sh = skyIMG.height();
-    glGenTextures(3, &skyImgID);
-    glBindTexture(GL_TEXTURE_2D, skyImgID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sw, sh, 0, GL_RGB, GL_FLOAT, skyIMG.data());
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+        w = skyIMG.width();
+        h = skyIMG.height();
+        glGenTextures(3, &skyImgID);
+        glBindTexture(GL_TEXTURE_2D, skyImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, skyIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
+    sidesIMG = SimpleImage(sides_file_name);
+        w = sidesIMG.width();
+        h = sidesIMG.height();
+        glGenTextures(4, &sidesImgID);
+        glBindTexture(GL_TEXTURE_2D, sidesImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    std::string bitches = "meshes/Textures/memchu.jpg";
+    memchuIMG = SimpleImage(bitches);
+        w = memchuIMG.width();
+        h = memchuIMG.height();
+        glGenTextures(5, &memchuImgID);
+        glBindTexture(GL_TEXTURE_2D, memchuImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    backIMG = SimpleImage(back_file_name);
+        w = backIMG.width();
+        h = backIMG.height();
+        glGenTextures(6, &backImgID);
+        glBindTexture(GL_TEXTURE_2D, backImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();

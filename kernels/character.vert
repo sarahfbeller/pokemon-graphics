@@ -47,10 +47,10 @@ void main()
     gl_Position = ftransform();
     
     // define ambient, diffuse, specular, light color
-    // ambientColor    = gl_LightSource[0].ambient.rgb;
-    // diffuseColor    = gl_LightSource[0].diffuse.rgb;
-    // specularColor   = gl_LightSource[0].specular.rgb;
-    // lightColor      = vec3(1.0, 1.0, 0.5);
+    ambientColor    = gl_LightSource[0].ambient.rgb;
+    diffuseColor    = gl_LightSource[0].diffuse.rgb;
+    specularColor   = gl_LightSource[0].specular.rgb;
+    lightColor      = vec3(1.0, 1.0, 0.5);
 
     vertices       = gl_Vertex;
     vertices.x     = vertices.x + x_position;
