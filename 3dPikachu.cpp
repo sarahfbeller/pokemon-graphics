@@ -18,15 +18,13 @@ std::vector<struct Bone *> bones; // bones[0] = root
 
 // indices into bones array for skeleton bones
 #define TORSO 0
-#define LEFTSHOULDER 1
-#define RIGHTSHOULDER 2
-#define LEFTARM 3
-#define RIGHTARM 4
-#define LEFTLEG 5
-#define RIGHTLEG 6
-#define HEAD 7
-#define LEFTEAR 8
-#define RIGHTEAR 9
+#define LEFTARM 1
+#define RIGHTARM 2
+#define LEFTLEG 3
+#define RIGHTLEG 4
+#define HEAD 5
+#define LEFTEAR 6
+#define RIGHTEAR 7
 
 // amount to add to rotation/translation with each frame / keystroke
 float rotDelta = 0.05; // in degrees
@@ -37,8 +35,13 @@ int Y = 0;
 bool isClicked = false;
 float rot_z = 0.0;
 // globals for keyframe animation
+float dt = 0.01;
 float currTime = 0.0;
-bool isAnimated = false;
+bool isWalking = false;
+bool goingForward = false;
+bool headShaking = false;
+float currBodyRotation = 0.0;
+float currHeadRotation = 0.0;
 
 void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float xdim, float ydim, float zdim,
@@ -69,8 +72,6 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
 void makeBones() {
     bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
-    struct Bone *leftShoulder = new struct Bone;
-    struct Bone *rightShoulder = new struct Bone;
     struct Bone *leftArm = new struct Bone;
     struct Bone *rightArm = new struct Bone;
     struct Bone *leftLeg = new struct Bone;
@@ -80,8 +81,8 @@ void makeBones() {
     struct Bone *rightEar = new struct Bone;
 
     std::vector<struct Bone *> children;
-    children.push_back(leftShoulder);
-    children.push_back(rightShoulder);
+    children.push_back(leftArm);
+    children.push_back(rightArm);
     children.push_back(head);
     children.push_back(leftLeg);
     children.push_back(rightLeg);
@@ -90,30 +91,20 @@ void makeBones() {
     makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    // left shoulder
-    children.clear();
-    children.push_back(leftArm);
-    makeBone(leftShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    // right shoulder
-    children[0] = rightArm;
-    makeBone(rightShoulder, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // head
-    children[0] = leftEar;
+    children.clear();
+    children.push_back(leftEar);
     children.push_back(rightEar);
     makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
             children, RGBColor(229/255.f, 228/255.f, 52/255.f));
     // arms
     children.clear();
-    makeBone(leftArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 50.0, 0.0, 170.0, 
+    makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
-    makeBone(rightArm, 0.0, 0.0, 0.0, 0.15, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -50.0, -170.0, 0.0, 
+    makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
             children, RGBColor(229/255.f, 218/255.f, 42/255.f));
     // legs
     makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
@@ -122,7 +113,6 @@ void makeBones() {
     makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -160.0, -90.0, -180.0, 
             children, RGBColor(0.0, 0.0, 1.0));
-
     // ears
     makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 
@@ -133,8 +123,6 @@ void makeBones() {
 
 
     bones.push_back(torso);
-    bones.push_back(leftShoulder);
-    bones.push_back(rightShoulder);
     bones.push_back(leftArm);
     bones.push_back(rightArm);
     bones.push_back(leftLeg);
@@ -209,40 +197,103 @@ void drawBone(struct Bone *bone, bool isRoot) {
     glPopMatrix();
 }
 
+/* Makes skeleton walk: legs move and body sways as Pikachu waddles. */
 void walk() {
     float t0 = 0.0;
     float t1 = 1.0;
     float t2 = 2.0;
-    float t0angle = -20.0;
-    float t1angle = 20.0;
-    float t2angle = -20.0;
-    float dt = 0.01;
+    float t0LegAngle = -20.0;
+    float t1LegAngle = 20.0;
+    float t2LegAngle = -20.0;
 
-    struct Bone *bone = bones[LEFTLEG];
+    float newAngle = 0.0;
     if (currTime <= t0+dt) {
-        bone->angle_y = t0angle;
+        newAngle = t0LegAngle;
     } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
-        bone->angle_y = t1angle;
+        newAngle = t1LegAngle;
     } else if (currTime >= t2) {
-        bone->angle_y = t2angle;
+        newAngle = t2LegAngle;
         currTime = t0;
     } else {
         if (currTime < t1) {
-            bone->angle_y = ((currTime/(t1-t0))*(t1angle-t0angle)) + t0angle;
+            newAngle = ((currTime/(t1-t0))*(t1LegAngle-t0LegAngle)) + t0LegAngle;
         } else if (currTime < t2) {
-            bone->angle_y = (((currTime-t1)/(t2-t1))*(t2angle-t1angle)) + t1angle;
+            newAngle = (((currTime-t1)/(t2-t1))*(t2LegAngle-t1LegAngle)) + t1LegAngle;
         }
     }
+    bones[LEFTLEG]->angle_y = newAngle;
+    bones[RIGHTLEG]->angle_y = -1*newAngle;
 
-    bones[RIGHTLEG]->angle_y = -1*bone->angle_y;
+    float t0BodyAngle = 2.0;
+    float t1BodyAngle = -2.0;
+    float t2BodyAngle = 2.0;
+    float deltaAngle = 90.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0BodyAngle - currBodyRotation;
+    } else if (currTime >= t2) {
+        deltaAngle += t2BodyAngle - currBodyRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
+        }
+        deltaAngle += newAngle - currBodyRotation;
+    }
+    currBodyRotation += deltaAngle;
+    bones[TORSO]->angle_z = currBodyRotation;
+
     currTime += dt;
+    glutPostRedisplay();
+}
+
+/* Moves in direction of walking. */
+void goForward() {
+    glTranslatef(0.0, 0.0, transDelta);
+    glutPostRedisplay();
+}
+
+/* Head sways from side to side. */
+void shakeHead() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0HeadAngle = 5.0;
+    float t1HeadAngle = -5.0;
+    float t2HeadAngle = 5.0;
+    float deltaAngle = 0.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0HeadAngle - currHeadRotation;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        deltaAngle += t1HeadAngle - currHeadRotation;
+    }else if (currTime >= t2) {
+        deltaAngle += t2HeadAngle - currHeadRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime <= t1) {
+            newAngle = ((currTime/(t1-t0))*(t1HeadAngle-t0HeadAngle)) + t0HeadAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2HeadAngle-t1HeadAngle)) + t1HeadAngle;
+        }
+        deltaAngle += newAngle - currHeadRotation;
+    }
+    currHeadRotation += deltaAngle;
+    bones[HEAD]->angle_z = currHeadRotation;
+    if (!isWalking) currTime += dt;
     glutPostRedisplay();
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0.f,0.f,0.f);
-    if (isAnimated) walk();
+    if (isWalking) walk();
+    if (goingForward) goForward();
+    if (headShaking) shakeHead();
     drawBone(bones[0], true);
     glFlush();
     glutSwapBuffers();
@@ -263,13 +314,19 @@ void keyFunc(unsigned char key, int x, int y) {
             bone->angle_z = newAngle_z;
         }
         glutPostRedisplay();
-    } if (key == 'a') { // animate scene
-        isAnimated = !isAnimated;
+    } else if (key == 'w') { // start/stop walking
+        isWalking = !isWalking;
         currTime = 0.0;
         glutPostRedisplay();
-    } if (key == 'r') { // rotate scene by 90 degrees around y axis
+    } else if (key == 'r') { // rotate scene by 90 degrees around y axis
         glTranslatef(0.5, 0.0, 0.0);
         glRotatef(90.0, 0.0, 1.0, 0.0);
+        glutPostRedisplay();
+    } else if (key == 'f') { // move/stop moving forward
+        goingForward = !goingForward;
+        glutPostRedisplay();
+    } else if (key == 'h') { // move/stop moving head
+        headShaking = !headShaking;
         glutPostRedisplay();
     }
 }
