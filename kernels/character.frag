@@ -27,10 +27,10 @@ vec4 blinnPhongModified(vec3 N, vec3 L, vec3 V, vec4 vertices) {
 }
 
 void main(){
-    // vec3 N = normalize(eyeSpaceNormal);
-    // vec3 L = gl_LightSource[0].diffuse.rgb;
-    // vec3 V = normalize(gl_LightSource[0].spotDirection);
-    // gl_FragColor        = blinnPhongModified(N, L, V, vertices);
+    vec3 N = normalize(eyeSpaceNormal);
+    vec3 L = gl_LightSource[0].diffuse.rgb;
+    vec3 V = normalize(gl_LightSource[0].spotDirection);
+    gl_FragColor        = blinnPhongModified(N, L, V, vertices);
 }
 
 
