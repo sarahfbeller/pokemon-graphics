@@ -10,93 +10,8 @@
 #include <string>
 #include <cstdio>
 #include <cmath>
-#include "draw_triangle.h"
-#include "parser.h"
 // #include "SimpleTexture.h"
 
-// =================== Element Shaders ====================== //
-    SimpleShaderProgram *shader1;
-    SimpleShaderProgram *wallShader;
-    SimpleShaderProgram *groundShader;
-    SimpleShaderProgram *skyShader;
-
-    std::string vertexShader = "kernels/character.vert";
-    std::string fragmentShader = "kernels/character.frag";
-
-    std::string wallVertexShader = "kernels/walls.vert";
-    std::string wallFragmentShader = "kernels/walls.frag";
-
-    std::string groundVertexShader = "kernels/ground.vert";
-    std::string groundFragmentShader = "kernels/ground.frag";
-
-    std::string skyVertexShader = "kernels/sky.vert";
-    std::string skyFragmentShader = "kernels/sky.frag";
-
-// ==================== Globals ============================= //
-Parser *p; 
-int Button;
-int State;
-int X;
-int Y;
-
-float x_position        = 0.2;
-float z_position        = 0.2;
-float vert_camera_pos   = 2.0;
-float angle             = 0.f;
-float facing_angle      = 0.f;
-
-float ground_level  = 0.f;
-float quad_height   = 18.0f;
-float quad_size     = 60.0f;
-
-float lx = 0.1f, lz = -1.0f, ly = -0.15f;
-float x = -0.1f, z = 1.0f, y = 0.15f;
-static SimpleImage texPNG;
-
-std::string ground_file_name = "meshes/Textures/stone1.jpg";
-static SimpleImage groundIMG;
-GLuint groundImgID;
-
-std::string sky_file_name = "meshes/Textures/sky2.jpg";
-static SimpleImage skyIMG;
-GLuint skyImgID;
-
-std::string sides_file_name = "meshes/Textures/sides.jpg";
-static SimpleImage sidesIMG;
-GLuint sidesImgID;
-
-static SimpleImage memchuIMG;
-GLuint memchuImgID;
-
-static SimpleImage backIMG;
-GLuint backImgID;
-
-struct Bone {
-    float x0, y0, z0; // starting position
-    float xdim, ydim, zdim; // x,y,z dimensions of bone
-    float angle_x, minAngle_x, maxAngle_x; // initial angle and limits of motion
-    float angle_y, minAngle_y, maxAngle_y;
-    float angle_z, minAngle_z, maxAngle_z;
-    std::vector<struct Bone *> children;
-};
-std::vector<struct Bone *> bones; // bones[0] = root
-
-// indices into bones array for skeleton bones
-#define TORSO 0
-#define LEFTARM 1
-#define RIGHTARM 2
-#define LEFTLEG 3
-#define RIGHTLEG 4
-#define HEAD 5
-#define LEFTEAR 6
-#define RIGHTEAR 7
-
-// globals for animation
-float dt = 0.01;
-float currTime = 0.0;
-bool isWalking = false;
-float currBodyRotation = 0.0;
-float currHeadRotation = 0.0;
 
 // ====================== Draw Scene Helpers ================= //
 
@@ -107,12 +22,6 @@ void drawBone(struct Bone *bone) {
     glRotatef(bone->angle_x, 1.0, 0.0, 0.0);
     glRotatef(bone->angle_y, 0.0, 1.0, 0.0);
     glRotatef(bone->angle_z, 0.0, 0.0, 1.0);
-
-    // // makes bones as lines
-    // glBegin(GL_LINES);
-    //     glVertex2f(0.0, 0.0);
-    //     glVertex2f(bone->xdim, 0.0);
-    // glEnd();
 
     // makes bones as cuboids
     glColor3f(1.0,1.0,1.0);
@@ -175,20 +84,51 @@ void drawGround(){
 
 void drawSky(){
     glPushMatrix();
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, skyImgID);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0.f, 0.f);
-        glVertex3f(-quad_size, quad_height, -quad_size);
-        glTexCoord2f(0.f, 1.f);
-        glVertex3f(quad_size, quad_height, -quad_size);
-        glTexCoord2f(1.f, 1.f);
-        glVertex3f(quad_size, quad_height, quad_size);
-        glTexCoord2f(1.f, 0.f);
-        glVertex3f(-quad_size, quad_height, quad_size);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
+    // glEnable(GL_TEXTURE_2D);
+    // glBindTexture(GL_TEXTURE_2D, skyImgID);
+    skyShader->Bind();
+    // skyShader->SetUniform("skyImgID", skyImgID);
+    // skyShader->SetUniform("ProjectionModelviewMatrix", GL_MODELVIEW);
+    glDisable(GL_CULL_FACE);
+    GLUquadricObj* quadric = gluNewQuadric();
+    gluQuadricDrawStyle(quadric,GLU_FILL);
+    gluSphere(quadric,quad_size * 2,20,20);
+    gluDeleteQuadric(quadric);
+    glEnable(GL_CULL_FACE);
+    skyShader->UnBind();
+
     glPopMatrix();
+}
+
+void drawScene(){
+    glPushMatrix();    
+
+    for(int f = 0; f < (q->obj_faces).size(); f++){
+        Face cur_face = q->obj_faces.at(f);
+        std::vector <Index> indices = cur_face.indices;
+
+        if(q->text && q->mat_map[cur_face.mat_id].texture != "")
+            mtl_init(q->mat_map[cur_face.mat_id].texture); 
+ 
+        glBegin(GL_TRIANGLES);
+            for (int i = 0; i < 3; i++){
+                Vertex * v = &q->obj_vertices[indices[i].v_ind];
+                if (q->text) {
+                    Texture * t = &q->obj_textures[indices[i].vt_ind];
+                    glTexCoord2f(t->text_1, 1 - t->text_2);
+                }
+                if(q->norm){
+                    Normal * n = &q->obj_normals[indices[i].vn_ind];
+                    glNormal3f(n->n_x, n->n_y, n->n_z);    
+                } else {
+                    Normal * n = (q->cal_norm(q->obj_vertices[indices[0].v_ind], q->obj_vertices[indices[1].v_ind], q->obj_vertices[indices[2].v_ind]));
+                    glNormal3f(n->n_x, n->n_y, n->n_z);                    
+                }
+                glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
+            }
+        glEnd();
+    }
+    glPopMatrix(); 
 }
 
 void drawWalls(){
@@ -206,9 +146,7 @@ void drawWalls(){
         glTexCoord2f(1.f, 1.f);
         glVertex3f(-quad_size, ground_level, -quad_size);
     glEnd();
-    // glPopMatrix();
 
-    // glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, backImgID);
     glBegin(GL_QUADS);
         glTexCoord2f(1.f, 1.f);
@@ -220,9 +158,7 @@ void drawWalls(){
         glTexCoord2f(1.f, 0.f);
         glVertex3f(quad_size, quad_height, -quad_size);
     glEnd();
-    // glPopMatrix();
 
-    // glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, sidesImgID);
     glBegin(GL_QUADS);
         glTexCoord2f(1.f, 1.f);
@@ -234,10 +170,7 @@ void drawWalls(){
         glTexCoord2f(1.f, 0.f);
         glVertex3f(-quad_size, quad_height, -quad_size);
     glEnd();
-    // glPopMatrix();
 
-
-    // glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, sidesImgID);
     glBegin(GL_QUADS);
         glTexCoord2f(1.f, 0.f);
@@ -267,7 +200,7 @@ void drawCharacter(){
         std::vector <Index> indices = cur_face.indices;
 
         if(p->text && p->mat_map[cur_face.mat_id].texture != ""){
-            mtl_init(p->mat_map[cur_face.mat_id].texture); // for cow
+            mtl_init(p->mat_map[cur_face.mat_id].texture); 
         } else {
             shader1->Bind();
             shader1->SetUniform("x_position", x_position);
@@ -314,14 +247,15 @@ void DrawingWrapper(){
     glRotatef(angle, 0, 1, 0);
     // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
     // gluLookAt(0.0f, vert_camera_pos + 1.0f, z, 0.0f, ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
-    gluLookAt(0.0f, vert_camera_pos + 1.0f, z, x_position, ly, z_position + lz, 0.0f, 1.0f, 0.0f);
+    gluLookAt(x, vert_camera_pos + 1.0f, z, x_position, ly, z_position + lz, 0.0f, 1.0f, 0.0f);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
     drawGround();
-    drawWalls();
+    // drawWalls();
     drawSky();
-    drawBone(bones[0]);
+    drawScene();
+    // drawBone(bones[0]);
     drawCharacter();
 }
 
@@ -330,6 +264,10 @@ void DrawingWrapper(){
 void SetupLighting() {
     GLfloat light_position[] = { 0.0, 20.0, 0.0, 0.0 };
     GLfloat white_light[] = { .8, .8, .8, 1.0 };
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 60.0 };
+    GLfloat lmodel_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
+
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glEnable(GL_LIGHTING);
 }
@@ -351,7 +289,8 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float angle_x, float minAngle_x, float maxAngle_x,
             float angle_y, float minAngle_y, float maxAngle_y,
             float angle_z, float minAngle_z, float maxAngle_z,
-            std::vector<struct Bone *> children) {
+            std::vector<struct Bone *> children) 
+{
     bone->x0 = x0;
     bone->y0 = y0;
     bone->z0 = z0;
@@ -457,43 +396,35 @@ void SetupWrapper(){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, groundIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    skyIMG = SimpleImage(sky_file_name);
-        w = skyIMG.width();
-        h = skyIMG.height();
-        glGenTextures(1, &skyImgID);
-        glBindTexture(GL_TEXTURE_2D, skyImgID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, skyIMG.data());
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    // sidesIMG = SimpleImage(sides_file_name);
+    //     w = sidesIMG.width();
+    //     h = sidesIMG.height();
+    //     glGenTextures(1, &sidesImgID);
+    //     glBindTexture(GL_TEXTURE_2D, sidesImgID);
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
+    //     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    sidesIMG = SimpleImage(sides_file_name);
-        w = sidesIMG.width();
-        h = sidesIMG.height();
-        glGenTextures(1, &sidesImgID);
-        glBindTexture(GL_TEXTURE_2D, sidesImgID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    // std::string memchu_file_name = "meshes/Textures/memchu.jpg";
+    // memchuIMG = SimpleImage(memchu_file_name);
+    //     w = memchuIMG.width();
+    //     h = memchuIMG.height();
+    //     glGenTextures(1, &memchuImgID);
+    //     glBindTexture(GL_TEXTURE_2D, memchuImgID);
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
+    //     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    std::string memchu_file_name = "meshes/Textures/memchu.jpg";
-    memchuIMG = SimpleImage(memchu_file_name);
-        w = memchuIMG.width();
-        h = memchuIMG.height();
-        glGenTextures(1, &memchuImgID);
-        glBindTexture(GL_TEXTURE_2D, memchuImgID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    // std::string back_file_name = "meshes/Textures/back_quad.jpg";
+    // backIMG = SimpleImage(back_file_name);
+    //     w = backIMG.width();
+    //     h = backIMG.height();
+    //     glGenTextures(1, &backImgID);
+    //     glBindTexture(GL_TEXTURE_2D, backImgID);
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
+    //     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    std::string back_file_name = "meshes/Textures/back_quad.jpg";
-    backIMG = SimpleImage(back_file_name);
-        w = backIMG.width();
-        h = backIMG.height();
-        glGenTextures(1, &backImgID);
-        glBindTexture(GL_TEXTURE_2D, backImgID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
     // makeBones();
     // std::cout<<bones.size()<<std::endl;
@@ -611,47 +542,47 @@ void KeyCallback(unsigned char key, int x, int y){
 
     // Zoom in/out
     case 'u':
-        z += .40;
-        lz -= .40;
-        ly -= .04;
+        z += .60;
+        lz -= .60;
+        ly -= .06;
         break;
     case 'o':
-        z -= .20;
-        lz += .20;
-        ly += .02;
+        z -= .40;
+        lz += .40;
+        ly += .04;
         break;
 
     // Change camera view
     case 'l':
-        angle += 5.f;
+        angle += 10.f;
         break;
     case 'j':
-        angle -= 5.f;
+        angle -= 10.f;
         break;
     case 'i':
-        vert_camera_pos += .1f;
+        vert_camera_pos += .2f;
         break;
     case ',':
-        vert_camera_pos -= .1f;
+        vert_camera_pos -= .2f;
         break;    
     case 'm':
-        facing_angle -= 5.f;
+        facing_angle -= 8.f;
         break;
     case '.':
-        facing_angle += 5.f;
+        facing_angle += 8.f;
 
     // Move Character
     case 's':
-        x_position -= .1f;
+        x_position -= .2f;
         break;
     case 'f':
-        x_position += .1f;
+        x_position += .2f;
         break;
     case 'e':
-        z_position += .1f;
+        z_position += .2f;
         break;
     case 'x':
-        z_position -= .1f;
+        z_position -= .2f;
         break;    
     case 'w':
         isWalking = !isWalking;
@@ -744,6 +675,9 @@ int main(int argc, char** argv){
 
     p = new Parser();
     p->load_file(input_file);
+
+    q = new Parser();
+    q->load_file("meshes/quad_all.obj");
 
     glutDisplayFunc(DisplayCallback);
     glutMouseFunc(MouseCallback);
