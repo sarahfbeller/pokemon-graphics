@@ -68,7 +68,6 @@ struct Bone {
     float angle_y, minAngle_y, maxAngle_y;
     float angle_z, minAngle_z, maxAngle_z;
     std::vector<struct Bone *> children;
-    RGBColor color; // remove when complete
 };
 std::vector<struct Bone *> bones; // bones[0] = root
 
@@ -108,7 +107,7 @@ void drawBone(struct Bone *bone) {
     // glEnd();
 
     // makes bones as cuboids
-    glColor3f(bone->color.r, bone->color.g, bone->color.b);
+    glColor3f(1.0,1.0,1.0);
     glBegin(GL_QUADS);
         glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
         glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
@@ -292,10 +291,8 @@ void DrawingWrapper(){
     drawGround();
     drawWalls();
     drawSky();
-    // std::cout<<bones.size()<<std::endl;
-    // drawBone(bones[0]);
+    drawBone(bones[0]);
     drawCharacter();
-    // glFlush();
 }
 
 
@@ -324,7 +321,7 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float angle_x, float minAngle_x, float maxAngle_x,
             float angle_y, float minAngle_y, float maxAngle_y,
             float angle_z, float minAngle_z, float maxAngle_z,
-            std::vector<struct Bone *> children, RGBColor color) {
+            std::vector<struct Bone *> children) {
     bone->x0 = x0;
     bone->y0 = y0;
     bone->z0 = z0;
@@ -341,7 +338,6 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
     bone->ydim = ydim;
     bone->zdim = zdim;
     bone->children = children;
-    bone->color = color;
 }
 
 /* First bone added must be root.
@@ -366,38 +362,30 @@ void makeBones() {
     // torso
     float torsoLen = 0.4;
     makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
-            0.0, 0.0, 360.0, 90.0, 0.0, 360.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+            0.0, 0.0, 360.0, 90.0, 0.0, 360.0, children);
 
     // head
     children.clear();
     children.push_back(leftEar);
     children.push_back(rightEar);
     makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
-            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
     // arms
     children.clear();
     makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
     makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
     // legs
     makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, 
-            children, RGBColor(0.0, 1.0, 0.0));
+            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
     makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, 
-            children, RGBColor(0.0, 0.0, 1.0));
+            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
     // ears
     makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 
-            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
     makeBone(rightEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, 
-            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
 
     bones.push_back(torso);
     bones.push_back(leftArm);
@@ -410,7 +398,7 @@ void makeBones() {
 }
 
 void SetupWrapper(){
-    // makeBones();
+    makeBones();
 
     shader1 = new SimpleShaderProgram();
     shader1->LoadVertexShader(vertexShader);
@@ -433,7 +421,7 @@ void SetupWrapper(){
     groundIMG = SimpleImage(ground_file_name);
     int gw = groundIMG.width();
     int gh = groundIMG.height();
-    glGenTextures(2, &groundImgID);
+    glGenTextures(1, &groundImgID);
     glBindTexture(GL_TEXTURE_2D, groundImgID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gw, gh, 0, GL_RGB, GL_FLOAT, groundIMG.data());
@@ -442,17 +430,12 @@ void SetupWrapper(){
     skyIMG = SimpleImage(sky_file_name);
     int sw = skyIMG.width();
     int sh = skyIMG.height();
-    // std::cout<<bones.size()<<std::endl;
-    glGenTextures(3, &skyImgID);
-    // std::cout<<bones.size()<<std::endl;
+    glGenTextures(2, &skyImgID);
     glBindTexture(GL_TEXTURE_2D, skyImgID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sw, sh, 0, GL_RGB, GL_FLOAT, skyIMG.data());
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    // makeBones();
-    // std::cout<<bones.size()<<std::endl;
-    
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();
     SetupLighting();
