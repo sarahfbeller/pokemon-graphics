@@ -39,8 +39,8 @@ int State;
 int X;
 int Y;
 
-float x_position        = 0.0;
-float z_position        = 0.0;
+float x_position        = 0.2;
+float z_position        = 0.2;
 float vert_camera_pos   = 2.0;
 float angle             = 0.f;
 float facing_angle      = 0.f;
@@ -68,7 +68,6 @@ GLuint sidesImgID;
 static SimpleImage memchuIMG;
 GLuint memchuImgID;
 
-std::string back_file_name = "meshes/Textures/back_quad.jpg";
 static SimpleImage backIMG;
 GLuint backImgID;
 
@@ -79,7 +78,6 @@ struct Bone {
     float angle_y, minAngle_y, maxAngle_y;
     float angle_z, minAngle_z, maxAngle_z;
     std::vector<struct Bone *> children;
-    RGBColor color; // remove when complete
 };
 std::vector<struct Bone *> bones; // bones[0] = root
 
@@ -97,8 +95,6 @@ std::vector<struct Bone *> bones; // bones[0] = root
 float dt = 0.01;
 float currTime = 0.0;
 bool isWalking = false;
-bool goingForward = false;
-bool headShaking = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
 
@@ -119,7 +115,7 @@ void drawBone(struct Bone *bone) {
     // glEnd();
 
     // makes bones as cuboids
-    glColor3f(bone->color.r, bone->color.g, bone->color.b);
+    glColor3f(1.0,1.0,1.0);
     glBegin(GL_QUADS);
         glVertex3f(0.0, -0.5*bone->ydim, -0.5*bone->zdim);
         glVertex3f(0.0, 0.5*bone->ydim, -0.5*bone->zdim);
@@ -161,8 +157,6 @@ void drawBone(struct Bone *bone) {
 
 void drawGround(){
     glPushMatrix();
-    // groundShader->Bind();
-    // mtl_init(groundIMG);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, groundImgID);
     glBegin(GL_QUADS);
@@ -176,19 +170,13 @@ void drawGround(){
         glVertex3f(-quad_size, ground_level, -quad_size);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-    // groundShader->UnBind();
     glPopMatrix();
-
 }
 
 void drawSky(){
     glPushMatrix();
-    // skyShader->Bind();
-    // mtl_init(sky_file_name);
-
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, skyImgID);
-
     glBegin(GL_QUADS);
         glTexCoord2f(0.f, 0.f);
         glVertex3f(-quad_size, quad_height, -quad_size);
@@ -200,12 +188,10 @@ void drawSky(){
         glVertex3f(-quad_size, quad_height, quad_size);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-
     glPopMatrix();
 }
 
 void drawWalls(){
-    // wallShader->Bind();
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);
 
@@ -266,7 +252,6 @@ void drawWalls(){
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
-    // wallShader->UnBind();
 }
 
 void drawCharacter(){
@@ -306,13 +291,6 @@ void drawCharacter(){
                 }
                 glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
 
-                // Sarah gets animation code integrated into this file
-                // Sarah gets bones into floats offset_x, y, z
-                // Sarah makes function to turn offsets into 3x3 matrix
-                // Erin figures out the below transform functions
-                    // to take in bone and matrix and transform vertex.
-                // Later Sarah figures out how to set bone for each vertex
-
                 // float x_transformed = transformX(v->x_val);
                 // float y_transformed = transformY(v->y_val);
                 // float z_transformed = transformZ(v->z_val);
@@ -343,14 +321,12 @@ void DrawingWrapper(){
     drawGround();
     drawWalls();
     drawSky();
-    // std::cout<<bones.size()<<std::endl;
-    // drawBone(bones[0]);
+    drawBone(bones[0]);
     drawCharacter();
-    // glFlush();
 }
 
 
-// =================== Setup Functions ===================== //
+// =================== Setup Functions ===================== //q
 void SetupLighting() {
     GLfloat light_position[] = { 0.0, 20.0, 0.0, 0.0 };
     GLfloat white_light[] = { .8, .8, .8, 1.0 };
@@ -375,7 +351,7 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float angle_x, float minAngle_x, float maxAngle_x,
             float angle_y, float minAngle_y, float maxAngle_y,
             float angle_z, float minAngle_z, float maxAngle_z,
-            std::vector<struct Bone *> children, RGBColor color) {
+            std::vector<struct Bone *> children) {
     bone->x0 = x0;
     bone->y0 = y0;
     bone->z0 = z0;
@@ -392,7 +368,6 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
     bone->ydim = ydim;
     bone->zdim = zdim;
     bone->children = children;
-    bone->color = color;
 }
 
 /* First bone added must be root.
@@ -415,40 +390,32 @@ void makeBones() {
     children.push_back(leftLeg);
     children.push_back(rightLeg);
     // torso
-    float torsoLen = 0.4;
-    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
-            0.0, 0.0, 360.0, 90.0, 0.0, 360.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+    float torsoLen = 1.6;
+    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.4, 0.4, 0.0, 0.0, 360.0, 
+            0.0, 0.0, 360.0, 90.0, 0.0, 360.0, children);
 
     // head
     children.clear();
     children.push_back(leftEar);
     children.push_back(rightEar);
-    makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, 
-            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+    makeBone(head, 0.0, 0.0, 0.0, 0.6, 0.6, 0.6, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
     // arms
     children.clear();
-    makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+    makeBone(leftArm, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
     makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, 
-            children, RGBColor(229/255.f, 218/255.f, 42/255.f));
+            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
     // legs
-    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, 
-            children, RGBColor(0.0, 1.0, 0.0));
-    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, 
-            children, RGBColor(0.0, 0.0, 1.0));
+    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
+    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
     // ears
-    makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 
-            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
-    makeBone(rightEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, 
-            children, RGBColor(229/255.f, 228/255.f, 52/255.f));
+    makeBone(leftEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
+    makeBone(rightEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
 
     bones.push_back(torso);
     bones.push_back(leftArm);
@@ -461,7 +428,7 @@ void makeBones() {
 }
 
 void SetupWrapper(){
-    // makeBones();
+    makeBones();
 
     shader1 = new SimpleShaderProgram();
     shader1->LoadVertexShader(vertexShader);
@@ -484,7 +451,7 @@ void SetupWrapper(){
     groundIMG = SimpleImage(ground_file_name);
         int w = groundIMG.width();
         int h = groundIMG.height();
-        glGenTextures(2, &groundImgID);
+        glGenTextures(1, &groundImgID);
         glBindTexture(GL_TEXTURE_2D, groundImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, groundIMG.data());
@@ -493,7 +460,7 @@ void SetupWrapper(){
     skyIMG = SimpleImage(sky_file_name);
         w = skyIMG.width();
         h = skyIMG.height();
-        glGenTextures(3, &skyImgID);
+        glGenTextures(1, &skyImgID);
         glBindTexture(GL_TEXTURE_2D, skyImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, skyIMG.data());
@@ -502,7 +469,7 @@ void SetupWrapper(){
     sidesIMG = SimpleImage(sides_file_name);
         w = sidesIMG.width();
         h = sidesIMG.height();
-        glGenTextures(4, &sidesImgID);
+        glGenTextures(1, &sidesImgID);
         glBindTexture(GL_TEXTURE_2D, sidesImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
@@ -512,16 +479,17 @@ void SetupWrapper(){
     memchuIMG = SimpleImage(memchu_file_name);
         w = memchuIMG.width();
         h = memchuIMG.height();
-        glGenTextures(5, &memchuImgID);
+        glGenTextures(1, &memchuImgID);
         glBindTexture(GL_TEXTURE_2D, memchuImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
+    std::string back_file_name = "meshes/Textures/back_quad.jpg";
     backIMG = SimpleImage(back_file_name);
         w = backIMG.width();
         h = backIMG.height();
-        glGenTextures(6, &backImgID);
+        glGenTextures(1, &backImgID);
         glBindTexture(GL_TEXTURE_2D, backImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
@@ -536,14 +504,91 @@ void SetupWrapper(){
     glEnable(GL_DEPTH_TEST);
 }
 
+// =================== Animation Functions ================= //
+/* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
+void walk() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0LegAngle = -20.0;
+    float t1LegAngle = 20.0;
+    float t2LegAngle = -20.0;
+
+    float newAngle = 0.0;
+    if (currTime <= t0+dt) {
+        newAngle = t0LegAngle;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        newAngle = t1LegAngle;
+    } else if (currTime >= t2) {
+        newAngle = t2LegAngle;
+        currTime = t0;
+    } else {
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1LegAngle-t0LegAngle)) + t0LegAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2LegAngle-t1LegAngle)) + t1LegAngle;
+        }
+    }
+    bones[LEFTLEG]->angle_y = newAngle;
+    bones[RIGHTLEG]->angle_y = -1*newAngle;
+
+    float t0BodyAngle = 2.0;
+    float t1BodyAngle = -2.0;
+    float t2BodyAngle = 2.0;
+    float deltaAngle = 90.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0BodyAngle - currBodyRotation;
+    } else if (currTime >= t2) {
+        deltaAngle += t2BodyAngle - currBodyRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
+        }
+        deltaAngle += newAngle - currBodyRotation;
+    }
+    currBodyRotation += deltaAngle;
+    bones[TORSO]->angle_z = currBodyRotation;
+
+    float t0HeadAngle = 5.0;
+    float t1HeadAngle = -5.0;
+    float t2HeadAngle = 5.0;
+    deltaAngle = 0.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0HeadAngle - currHeadRotation;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        deltaAngle += t1HeadAngle - currHeadRotation;
+    }else if (currTime >= t2) {
+        deltaAngle += t2HeadAngle - currHeadRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime <= t1) {
+            newAngle = ((currTime/(t1-t0))*(t1HeadAngle-t0HeadAngle)) + t0HeadAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2HeadAngle-t1HeadAngle)) + t1HeadAngle;
+        }
+        deltaAngle += newAngle - currHeadRotation;
+    }
+    currHeadRotation += deltaAngle;
+    bones[HEAD]->angle_z = currHeadRotation;
+
+    currTime += dt;
+    glutPostRedisplay();
+}
+
 // =================== Callback Functions ================== //
 void DisplayCallback(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, -10.f);
-
+    if (isWalking) walk();
     DrawingWrapper();
     glutSwapBuffers();
 }
@@ -608,6 +653,10 @@ void KeyCallback(unsigned char key, int x, int y){
     case 'x':
         z_position -= .1f;
         break;    
+    case 'w':
+        isWalking = !isWalking;
+        currTime = 0.0;
+        break;
 
     // Reset Character Position
     case 'a':
