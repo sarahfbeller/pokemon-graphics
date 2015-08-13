@@ -41,13 +41,13 @@ int Y;
 
 float x_position        = 0.0;
 float z_position        = 0.0;
-float vert_camera_pos   = 1.0;
+float vert_camera_pos   = 2.0;
 float angle             = 0.f;
 float facing_angle      = 0.f;
 
 float ground_level  = 0.f;
-float quad_height   = 8.0f;
-float quad_size     = 50.0f;
+float quad_height   = 18.0f;
+float quad_size     = 60.0f;
 
 float lx = 0.1f, lz = -1.0f, ly = -0.15f;
 float x = -0.1f, z = 1.0f, y = 0.15f;
@@ -272,9 +272,9 @@ void drawWalls(){
 void drawCharacter(){
     glPushMatrix();
     // facing direction
-    glTranslatef(-x_position, 0, -z_position);
-    glRotatef(facing_angle, 0, 1, 0);
     glTranslatef(x_position, 0, z_position);
+    glRotatef(facing_angle, 0, 1, 0);
+    glTranslatef(-x_position, 0, -z_position);
     
 
     for(int f = 0; f < (p->obj_faces).size(); f++){
@@ -335,7 +335,8 @@ void drawCharacter(){
 void DrawingWrapper(){
     glRotatef(angle, 0, 1, 0);
     // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
-    gluLookAt(0.0f, vert_camera_pos, z, 0.0f, 0.0f + ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
+    // gluLookAt(0.0f, vert_camera_pos + 1.0f, z, 0.0f, ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
+    gluLookAt(0.0f, vert_camera_pos + 1.0f, z, x_position, ly, z_position + lz, 0.0f, 1.0f, 0.0f);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
@@ -397,7 +398,7 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
 /* First bone added must be root.
  * Currently makes torso, arms, legs, head, and ears. */
 void makeBones() {
-    bones = std::vector<struct Bone *>();
+    // bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
     struct Bone *leftArm = new struct Bone;
     struct Bone *rightArm = new struct Bone;
@@ -525,6 +526,9 @@ void SetupWrapper(){
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    // makeBones();
+    // std::cout<<bones.size()<<std::endl;
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();
