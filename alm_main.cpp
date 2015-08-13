@@ -39,8 +39,8 @@ int State;
 int X;
 int Y;
 
-float x_position        = 0.0;
-float z_position        = 0.0;
+float x_position        = 0.2;
+float z_position        = 0.2;
 float vert_camera_pos   = 1.0;
 float angle             = 0.f;
 float facing_angle      = 0.f;
@@ -68,7 +68,6 @@ GLuint sidesImgID;
 static SimpleImage memchuIMG;
 GLuint memchuImgID;
 
-std::string back_file_name = "meshes/Textures/back_quad.jpg";
 static SimpleImage backIMG;
 GLuint backImgID;
 
@@ -346,7 +345,7 @@ void DrawingWrapper(){
 }
 
 
-// =================== Setup Functions ===================== //
+// =================== Setup Functions ===================== //q
 void SetupLighting() {
     GLfloat light_position[] = { 0.0, 20.0, 0.0, 0.0 };
     GLfloat white_light[] = { .8, .8, .8, 1.0 };
@@ -471,7 +470,7 @@ void SetupWrapper(){
     groundIMG = SimpleImage(ground_file_name);
         int w = groundIMG.width();
         int h = groundIMG.height();
-        glGenTextures(2, &groundImgID);
+        glGenTextures(1, &groundImgID);
         glBindTexture(GL_TEXTURE_2D, groundImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, groundIMG.data());
@@ -480,7 +479,7 @@ void SetupWrapper(){
     skyIMG = SimpleImage(sky_file_name);
         w = skyIMG.width();
         h = skyIMG.height();
-        glGenTextures(3, &skyImgID);
+        glGenTextures(1, &skyImgID);
         glBindTexture(GL_TEXTURE_2D, skyImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, skyIMG.data());
@@ -489,7 +488,7 @@ void SetupWrapper(){
     sidesIMG = SimpleImage(sides_file_name);
         w = sidesIMG.width();
         h = sidesIMG.height();
-        glGenTextures(4, &sidesImgID);
+        glGenTextures(1, &sidesImgID);
         glBindTexture(GL_TEXTURE_2D, sidesImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
@@ -499,16 +498,17 @@ void SetupWrapper(){
     memchuIMG = SimpleImage(memchu_file_name);
         w = memchuIMG.width();
         h = memchuIMG.height();
-        glGenTextures(5, &memchuImgID);
+        glGenTextures(1, &memchuImgID);
         glBindTexture(GL_TEXTURE_2D, memchuImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
+    std::string back_file_name = "meshes/Textures/back_quad.jpg";
     backIMG = SimpleImage(back_file_name);
         w = backIMG.width();
         h = backIMG.height();
-        glGenTextures(6, &backImgID);
+        glGenTextures(1, &backImgID);
         glBindTexture(GL_TEXTURE_2D, backImgID);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
