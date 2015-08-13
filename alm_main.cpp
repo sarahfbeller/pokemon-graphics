@@ -95,8 +95,6 @@ std::vector<struct Bone *> bones; // bones[0] = root
 float dt = 0.01;
 float currTime = 0.0;
 bool isWalking = false;
-bool goingForward = false;
-bool headShaking = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
 
@@ -159,8 +157,6 @@ void drawBone(struct Bone *bone) {
 
 void drawGround(){
     glPushMatrix();
-    // groundShader->Bind();
-    // mtl_init(groundIMG);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, groundImgID);
     glBegin(GL_QUADS);
@@ -174,19 +170,13 @@ void drawGround(){
         glVertex3f(-quad_size, ground_level, -quad_size);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-    // groundShader->UnBind();
     glPopMatrix();
-
 }
 
 void drawSky(){
     glPushMatrix();
-    // skyShader->Bind();
-    // mtl_init(sky_file_name);
-
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, skyImgID);
-
     glBegin(GL_QUADS);
         glTexCoord2f(0.f, 0.f);
         glVertex3f(-quad_size, quad_height, -quad_size);
@@ -198,12 +188,10 @@ void drawSky(){
         glVertex3f(-quad_size, quad_height, quad_size);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-
     glPopMatrix();
 }
 
 void drawWalls(){
-    // wallShader->Bind();
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);
 
@@ -264,7 +252,6 @@ void drawWalls(){
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
-    // wallShader->UnBind();
 }
 
 void drawCharacter(){
@@ -303,13 +290,6 @@ void drawCharacter(){
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
                 glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
-
-                // Sarah gets animation code integrated into this file
-                // Sarah gets bones into floats offset_x, y, z
-                // Sarah makes function to turn offsets into 3x3 matrix
-                // Erin figures out the below transform functions
-                    // to take in bone and matrix and transform vertex.
-                // Later Sarah figures out how to set bone for each vertex
 
                 // float x_transformed = transformX(v->x_val);
                 // float y_transformed = transformY(v->y_val);
@@ -409,31 +389,31 @@ void makeBones() {
     children.push_back(leftLeg);
     children.push_back(rightLeg);
     // torso
-    float torsoLen = 0.4;
-    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.1, 0.1, 0.0, 0.0, 360.0, 
+    float torsoLen = 1.6;
+    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.4, 0.4, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, children);
 
     // head
     children.clear();
     children.push_back(leftEar);
     children.push_back(rightEar);
-    makeBone(head, 0.0, 0.0, 0.0, 0.15, 0.15, 0.15, 0.0, 0.0, 0.0, 
+    makeBone(head, 0.0, 0.0, 0.0, 0.6, 0.6, 0.6, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
     // arms
     children.clear();
-    makeBone(leftArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(leftArm, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
     makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
     // legs
-    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
-    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
     // ears
-    makeBone(leftEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(leftEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
-    makeBone(rightEar, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    makeBone(rightEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
 
     bones.push_back(torso);
@@ -520,14 +500,91 @@ void SetupWrapper(){
     glEnable(GL_DEPTH_TEST);
 }
 
+// =================== Animation Functions ================= //
+/* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
+void walk() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0LegAngle = -20.0;
+    float t1LegAngle = 20.0;
+    float t2LegAngle = -20.0;
+
+    float newAngle = 0.0;
+    if (currTime <= t0+dt) {
+        newAngle = t0LegAngle;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        newAngle = t1LegAngle;
+    } else if (currTime >= t2) {
+        newAngle = t2LegAngle;
+        currTime = t0;
+    } else {
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1LegAngle-t0LegAngle)) + t0LegAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2LegAngle-t1LegAngle)) + t1LegAngle;
+        }
+    }
+    bones[LEFTLEG]->angle_y = newAngle;
+    bones[RIGHTLEG]->angle_y = -1*newAngle;
+
+    float t0BodyAngle = 2.0;
+    float t1BodyAngle = -2.0;
+    float t2BodyAngle = 2.0;
+    float deltaAngle = 90.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0BodyAngle - currBodyRotation;
+    } else if (currTime >= t2) {
+        deltaAngle += t2BodyAngle - currBodyRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
+        }
+        deltaAngle += newAngle - currBodyRotation;
+    }
+    currBodyRotation += deltaAngle;
+    bones[TORSO]->angle_z = currBodyRotation;
+
+    float t0HeadAngle = 5.0;
+    float t1HeadAngle = -5.0;
+    float t2HeadAngle = 5.0;
+    deltaAngle = 0.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0HeadAngle - currHeadRotation;
+    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
+        deltaAngle += t1HeadAngle - currHeadRotation;
+    }else if (currTime >= t2) {
+        deltaAngle += t2HeadAngle - currHeadRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime <= t1) {
+            newAngle = ((currTime/(t1-t0))*(t1HeadAngle-t0HeadAngle)) + t0HeadAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2HeadAngle-t1HeadAngle)) + t1HeadAngle;
+        }
+        deltaAngle += newAngle - currHeadRotation;
+    }
+    currHeadRotation += deltaAngle;
+    bones[HEAD]->angle_z = currHeadRotation;
+
+    currTime += dt;
+    glutPostRedisplay();
+}
+
 // =================== Callback Functions ================== //
 void DisplayCallback(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, -10.f);
-
+    if (isWalking) walk();
     DrawingWrapper();
     glutSwapBuffers();
 }
@@ -592,6 +649,10 @@ void KeyCallback(unsigned char key, int x, int y){
     case 'x':
         z_position -= .1f;
         break;    
+    case 'w':
+        isWalking = !isWalking;
+        currTime = 0.0;
+        break;
 
     // Reset Character Position
     case 'a':
