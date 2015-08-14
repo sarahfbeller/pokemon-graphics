@@ -287,7 +287,7 @@ void DrawingWrapper(){
     drawSky();
     drawWalls();
     // drawScene();
-    // drawBone(bones[0]);
+    drawBone(bones[0]);
     drawCharacter();
 }
 
