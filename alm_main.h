@@ -73,9 +73,10 @@ int Y;
 
 float x_position        = 0.2;
 float z_position        = 0.2;
-float vert_camera_pos   = 2.0;
+float vert_camera_pos   = 3.0;
 float angle             = 0.f;
 float facing_angle      = 0.f;
+float pi                = 3.14579;
 
 float ground_level  = 0.f;
 float quad_height   = 18.0f;

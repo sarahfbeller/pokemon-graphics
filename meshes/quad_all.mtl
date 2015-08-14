@@ -4,30 +4,24 @@ Kd 0.50 0.50 0.50
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 Ni 1.00
-newmtl lambert2SG
+newmtl quad:lambert2SG
 illum 4
 Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
-map_Kd Textures/sides.jpg
+map_Kd sides.jpg
 Ni 1.00
-newmtl lambert3SG
+newmtl quad:lambert3SG
 illum 4
 Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
-map_Kd Textures/memchu.jpg
+map_Kd memchu.jpg
 Ni 1.00
-newmtl lambert4SG
+newmtl quad:lambert4SG
 illum 4
 Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
-map_Kd Textures/back_quad.jpg
-Ni 1.00
-newmtl lambert5SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
+map_Kd back_quad.jpg
 Ni 1.00

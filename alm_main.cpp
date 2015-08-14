@@ -84,25 +84,21 @@ void drawGround(){
 
 void drawSky(){
     glPushMatrix();
-    // glEnable(GL_TEXTURE_2D);
-    // glBindTexture(GL_TEXTURE_2D, skyImgID);
     skyShader->Bind();
-    // skyShader->SetUniform("skyImgID", skyImgID);
-    // skyShader->SetUniform("ProjectionModelviewMatrix", GL_MODELVIEW);
     glDisable(GL_CULL_FACE);
     GLUquadricObj* quadric = gluNewQuadric();
     gluQuadricDrawStyle(quadric,GLU_FILL);
     gluSphere(quadric,quad_size * 2,20,20);
     gluDeleteQuadric(quadric);
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     skyShader->UnBind();
-
     glPopMatrix();
 }
 
 void drawScene(){
     glPushMatrix();    
-
+    glScalef(2.0f, 1.0f, 2.0f);
     for(int f = 0; f < (q->obj_faces).size(); f++){
         Face cur_face = q->obj_faces.at(f);
         std::vector <Index> indices = cur_face.indices;
@@ -124,11 +120,12 @@ void drawScene(){
                     Normal * n = (q->cal_norm(q->obj_vertices[indices[0].v_ind], q->obj_vertices[indices[1].v_ind], q->obj_vertices[indices[2].v_ind]));
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
-                glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
+                glVertex3f(v->x_val + x_position, v->y_val + .02f, v->z_val + z_position);
             }
         glEnd();
     }
     glPopMatrix(); 
+    glScalef(1.0f, 1.0f, 1.0f);
 }
 
 void drawWalls(){
@@ -245,17 +242,15 @@ void drawCharacter(){
 // ========================= Drawing Wrapper ================== //
 void DrawingWrapper(){
     glRotatef(angle, 0, 1, 0);
-    // gluLookAt(  x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
-    // gluLookAt(0.0f, vert_camera_pos + 1.0f, z, 0.0f, ly, 0.0f + lz, 0.0f, 1.0f, 0.0f);
     gluLookAt(x, vert_camera_pos + 1.0f, z, x_position, ly, z_position + lz, 0.0f, 1.0f, 0.0f);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
     drawGround();
-    // drawWalls();
     drawSky();
-    drawScene();
-    // drawBone(bones[0]);
+    drawWalls();
+    // drawScene();
+    drawBone(bones[0]);
     drawCharacter();
 }
 
@@ -396,34 +391,34 @@ void SetupWrapper(){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, groundIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    // sidesIMG = SimpleImage(sides_file_name);
-    //     w = sidesIMG.width();
-    //     h = sidesIMG.height();
-    //     glGenTextures(1, &sidesImgID);
-    //     glBindTexture(GL_TEXTURE_2D, sidesImgID);
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
-    //     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    sidesIMG = SimpleImage(sides_file_name);
+        w = sidesIMG.width();
+        h = sidesIMG.height();
+        glGenTextures(1, &sidesImgID);
+        glBindTexture(GL_TEXTURE_2D, sidesImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, sidesIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    // std::string memchu_file_name = "meshes/Textures/memchu.jpg";
-    // memchuIMG = SimpleImage(memchu_file_name);
-    //     w = memchuIMG.width();
-    //     h = memchuIMG.height();
-    //     glGenTextures(1, &memchuImgID);
-    //     glBindTexture(GL_TEXTURE_2D, memchuImgID);
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
-    //     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    std::string memchu_file_name = "meshes/Textures/memchu.jpg";
+    memchuIMG = SimpleImage(memchu_file_name);
+        w = memchuIMG.width();
+        h = memchuIMG.height();
+        glGenTextures(1, &memchuImgID);
+        glBindTexture(GL_TEXTURE_2D, memchuImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, memchuIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    // std::string back_file_name = "meshes/Textures/back_quad.jpg";
-    // backIMG = SimpleImage(back_file_name);
-    //     w = backIMG.width();
-    //     h = backIMG.height();
-    //     glGenTextures(1, &backImgID);
-    //     glBindTexture(GL_TEXTURE_2D, backImgID);
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
-    //     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    std::string back_file_name = "meshes/Textures/back_quad.jpg";
+    backIMG = SimpleImage(back_file_name);
+        w = backIMG.width();
+        h = backIMG.height();
+        glGenTextures(1, &backImgID);
+        glBindTexture(GL_TEXTURE_2D, backImgID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 
     // makeBones();
@@ -579,10 +574,12 @@ void KeyCallback(unsigned char key, int x, int y){
         x_position += .2f;
         break;
     case 'e':
-        z_position += .2f;
+        z_position += .5f * cos(pi * facing_angle/180.f);
+        x_position += .5f * sin(pi * facing_angle/180.f);
         break;
     case 'x':
-        z_position -= .2f;
+        z_position -= .5f * cos(pi * facing_angle/180.f);
+        x_position -= .5f * sin(pi * facing_angle/180.f);
         break;    
     case 'w':
         isWalking = !isWalking;
@@ -596,7 +593,11 @@ void KeyCallback(unsigned char key, int x, int y){
     default:
         break;
     }
+    z_position = fmax(z_position, -quad_size + 4.f);
+    z_position = fmin(z_position, quad_size - 4.f);
 
+    x_position = fmax(x_position, -quad_size + 4.f);
+    x_position = fmin(x_position, quad_size - 4.f);
     glutPostRedisplay();
 }
 
