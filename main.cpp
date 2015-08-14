@@ -225,9 +225,12 @@ void drawCharacter(){
     Bone *b = bones[TORSO];
     float newDeg_z = (b->angle_z-90)*pi/180;
     float newDeg_y = facing_angle*pi/180;
-    float rot_mat[3][3] = { { cos(newDeg_z), -sin(newDeg_z), 0 },
-        { sin(newDeg_z), cos(newDeg_z), 0 },
-        { 0, 0, 1 } };
+    float axis_rot[3] = {sin(newDeg_y), 0, cos(newDeg_y)}; 
+    float cos_val = cos(newDeg_z);
+    float sin_val = sin(newDeg_z);
+    float rot_mat[3][3] = { { cos_val+ axis_rot[0]*axis_rot[0]*(1-cos_val), axis_rot[0]*axis_rot[1]*(1-cos_val) -axis_rot[2]*sin_val, axis_rot[0]*axis_rot[2]*(1-cos_val) + axis_rot[1]*sin_val },
+                            { axis_rot[1]*axis_rot[0]*(1-cos_val) + axis_rot[2]*sin_val, cos_val + axis_rot[1]*axis_rot[1]*(1-cos_val), axis_rot[1]*axis_rot[2] * (1-cos_val) - axis_rot[0]*sin_val },
+                            { axis_rot[2]*axis_rot[0]*(1- cos_val) - axis_rot[1]*sin_val, axis_rot[2]*axis_rot[1]*(1-cos_val) + axis_rot[0]*sin_val, cos_val + axis_rot[2]*axis_rot[2]*(1-cos_val) } };
     
     /*float rot_mat_y[3][3] = {{cos(-newDeg_y), 0, sin(-newDeg_y)},
         {0, 1, 0},
