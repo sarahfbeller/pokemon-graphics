@@ -250,7 +250,7 @@ void DrawingWrapper(){
     drawSky();
     drawWalls();
     // drawScene();
-    drawBone(bones[0]);
+    // drawBone(bones[0]);
     drawCharacter();
 }
 
@@ -307,58 +307,58 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
 /* First bone added must be root.
  * Currently makes torso, arms, legs, head, and ears. */
 void makeBones() {
-    // bones = std::vector<struct Bone *>();
+    bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
-    struct Bone *leftArm = new struct Bone;
-    struct Bone *rightArm = new struct Bone;
-    struct Bone *leftLeg = new struct Bone;
-    struct Bone *rightLeg = new struct Bone;
-    struct Bone *head = new struct Bone;
-    struct Bone *leftEar = new struct Bone;
-    struct Bone *rightEar = new struct Bone;
+    // struct Bone *leftArm = new struct Bone;
+    // struct Bone *rightArm = new struct Bone;
+    // struct Bone *leftLeg = new struct Bone;
+    // struct Bone *rightLeg = new struct Bone;
+    // struct Bone *head = new struct Bone;
+    // struct Bone *leftEar = new struct Bone;
+    // struct Bone *rightEar = new struct Bone;
 
     std::vector<struct Bone *> children;
-    children.push_back(leftArm);
-    children.push_back(rightArm);
-    children.push_back(head);
-    children.push_back(leftLeg);
-    children.push_back(rightLeg);
+    // children.push_back(leftArm);
+    // children.push_back(rightArm);
+    // children.push_back(head);
+    // children.push_back(leftLeg);
+    // children.push_back(rightLeg);
     // torso
-    float torsoLen = 1.6;
-    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.4, 0.4, 0.0, 0.0, 360.0, 
+    float torsoLen = 2.0;
+    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.5, 0.5, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, children);
 
     // head
-    children.clear();
-    children.push_back(leftEar);
-    children.push_back(rightEar);
-    makeBone(head, 0.0, 0.0, 0.0, 0.6, 0.6, 0.6, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
-    // arms
-    children.clear();
-    makeBone(leftArm, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
-    makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
-    // legs
-    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
-    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
-    // ears
-    makeBone(leftEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
-    makeBone(rightEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
+    // children.clear();
+    // children.push_back(leftEar);
+    // children.push_back(rightEar);
+    // makeBone(head, 0.0, 0.0, 0.0, 0.6, 0.6, 0.6, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
+    // // arms
+    // children.clear();
+    // makeBone(leftArm, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
+    // makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
+    // // legs
+    // makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
+    // makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
+    // // ears
+    // makeBone(leftEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
+    // makeBone(rightEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
 
     bones.push_back(torso);
-    bones.push_back(leftArm);
-    bones.push_back(rightArm);
-    bones.push_back(leftLeg);
-    bones.push_back(rightLeg);
-    bones.push_back(head);
-    bones.push_back(leftEar);
-    bones.push_back(rightEar);
+    // bones.push_back(leftArm);
+    // bones.push_back(rightArm);
+    // bones.push_back(leftLeg);
+    // bones.push_back(rightLeg);
+    // bones.push_back(head);
+    // bones.push_back(leftEar);
+    // bones.push_back(rightEar);
 }
 
 void SetupWrapper(){
