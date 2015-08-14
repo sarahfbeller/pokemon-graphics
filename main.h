@@ -41,24 +41,15 @@ class SimpleImage;
 #include "SimpleImage.h"
 #include "SimpleShaderProgram.h"
 #include "findGLUT.h"
-// #include "draw_triangle.h"
 #include "parser.h"
 
 
 // =================== Element Shaders ====================== //
-    SimpleShaderProgram *shader1;
-    SimpleShaderProgram *wallShader;
-    SimpleShaderProgram *groundShader;
+    SimpleShaderProgram *character_shader;
     SimpleShaderProgram *skyShader;
 
     std::string vertexShader = "kernels/character.vert";
     std::string fragmentShader = "kernels/character.frag";
-
-    std::string wallVertexShader = "kernels/walls.vert";
-    std::string wallFragmentShader = "kernels/walls.frag";
-
-    std::string groundVertexShader = "kernels/ground.vert";
-    std::string groundFragmentShader = "kernels/ground.frag";
 
     std::string skyVertexShader = "kernels/sky.vert";
     std::string skyFragmentShader = "kernels/sky.frag";
