@@ -94,7 +94,7 @@ std::string sky_file_name = "meshes/Textures/sky2.jpg";
 static SimpleImage skyIMG;
 GLuint skyImgID;
 
-std::string sides_file_name = "meshes/Textures/sides.jpg";
+std::string sides_file_name = "meshes/Textures/left_quad.jpg";
 static SimpleImage sidesIMG;
 GLuint sidesImgID;
 

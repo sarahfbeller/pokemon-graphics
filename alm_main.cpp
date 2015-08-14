@@ -134,47 +134,47 @@ void drawWalls(){
 
     glBindTexture(GL_TEXTURE_2D, memchuImgID);
     glBegin(GL_QUADS);
-        glTexCoord2f(1.f, 0.f);
+        glTexCoord2f(.99f, 0.01f);
         glVertex3f(-quad_size, quad_height, -quad_size);
-        glTexCoord2f(0.f, 0.f);
+        glTexCoord2f(0.01f, 0.01f);
         glVertex3f(-quad_size, quad_height, quad_size);
-        glTexCoord2f(0.f, 1.f);
+        glTexCoord2f(0.01f, .99f);
         glVertex3f(-quad_size, ground_level, quad_size);
-        glTexCoord2f(1.f, 1.f);
+        glTexCoord2f(.99f, .99f);
         glVertex3f(-quad_size, ground_level, -quad_size);
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, backImgID);
     glBegin(GL_QUADS);
-        glTexCoord2f(1.f, 1.f);
+        glTexCoord2f(.99f, .99f);
         glVertex3f(quad_size, ground_level, -quad_size);
-        glTexCoord2f(0.f, 1.f);
+        glTexCoord2f(0.01f, .99f);
         glVertex3f(quad_size, ground_level, quad_size);
-        glTexCoord2f(0.f, 0.f);
+        glTexCoord2f(0.01f, 0.01f);
         glVertex3f(quad_size, quad_height, quad_size);
-        glTexCoord2f(1.f, 0.f);
+        glTexCoord2f(.99f, 0.01f);
         glVertex3f(quad_size, quad_height, -quad_size);
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, sidesImgID);
     glBegin(GL_QUADS);
-        glTexCoord2f(1.f, 1.f);
+        glTexCoord2f(.99f, .99f);
         glVertex3f(-quad_size, ground_level, -quad_size);
-        glTexCoord2f(0.f, 1.f);
+        glTexCoord2f(0.01f, .99f);
         glVertex3f(quad_size, ground_level, -quad_size);
-        glTexCoord2f(0.f, 0.f);
+        glTexCoord2f(0.01f, 0.01f);
         glVertex3f(quad_size, quad_height, -quad_size);
-        glTexCoord2f(1.f, 0.f);
+        glTexCoord2f(.99f, 0.01f);
         glVertex3f(-quad_size, quad_height, -quad_size);
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, sidesImgID);
     glBegin(GL_QUADS);
-        glTexCoord2f(1.f, 0.f);
+        glTexCoord2f(.99f, 0.01f);
         glVertex3f(-quad_size, quad_height, quad_size);
-        glTexCoord2f(0.f, 0.f);
+        glTexCoord2f(0.01f, 0.01f);
         glVertex3f(quad_size, quad_height, quad_size);
-        glTexCoord2f(0.f, 1.f);
+        glTexCoord2f(0.01f, .99f);
         glVertex3f(quad_size, ground_level, quad_size);
         glTexCoord2f(1.f, 1.f);
         glVertex3f(-quad_size, ground_level, quad_size);
@@ -560,19 +560,11 @@ void KeyCallback(unsigned char key, int x, int y){
     case ',':
         vert_camera_pos -= .2f;
         break;    
-    case 'm':
+    case 'f':
         facing_angle -= 8.f;
         break;
-    case '.':
-        facing_angle += 8.f;
-
-    // Move Character
     case 's':
-        x_position -= .2f;
-        break;
-    case 'f':
-        x_position += .2f;
-        break;
+        facing_angle += 8.f;
     case 'e':
         z_position += .5f * cos(pi * facing_angle/180.f);
         x_position += .5f * sin(pi * facing_angle/180.f);

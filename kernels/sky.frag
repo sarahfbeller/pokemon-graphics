@@ -39,5 +39,6 @@ void main()
     shaded.r = max(shaded.r, .137);
     shaded.g = max(shaded.g, .31);
     shaded.b = max(shaded.b, .63);
-    gl_FragColor = normalize(shaded);
+    gl_FragColor = vec4(30./256., 62./256., 136./256., 1.);
+    // gl_FragColor = normalize(shaded);
 }
