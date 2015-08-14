@@ -219,7 +219,21 @@ void drawCharacter(){
                     Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
-                glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
+
+				Bone *b = bones[v->bone_ind];
+				float[3][3] rot_mat = { { cos(b->angle), -sin(b->angle), 0 },
+										{ sin(b->angle), cos(b->angle), 0 },
+										{ 0, 0, 1 } };
+				float[3] new_coords = {0,0,0};
+				float[3] o_vec = { ((v->x_val + x_position) - b->start_x), ((v->y_val + y_position) - b->start_y), ((v->z_val + z_position) - b->stary_z) };
+				for (int i = 0; i < 3; i++) {
+					float val = 0;
+					for (int j = 0; j < 3; j++) {
+						val += rot_mat[i][j] * o_vec[j];
+					}
+					new_coords[i] = val;
+				}
+                glVertex3f(new_coords[0] + b->start_x, new_coords[1] + b->start_y, new_coords[2] + b->start_z);
 
                 // float x_transformed = transformX(v->x_val);
                 // float y_transformed = transformY(v->y_val);
