@@ -225,7 +225,7 @@ void drawCharacter(){
 										{ sin(b->angle_z), cos(b->angle_z), 0 },
 										{ 0, 0, 1 } };
 				float new_coords[3] = {0,0,0};
-				float o_vec[3] = { ((v->x_val + x_position) - b->x0), ((v->y_val) - b->y0), ((v->z_val + z_position) - b->z0) };
+				float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
 				for (int i = 0; i < 3; i++) {
 					float val = 0;
 					for (int j = 0; j < 3; j++) {
@@ -233,7 +233,7 @@ void drawCharacter(){
 					}
 					new_coords[i] = val;
 				}
-                glVertex3f(new_coords[0] + b->x0, new_coords[1] + b->y0, new_coords[2] + b->z0);
+				glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
             }
         glEnd();
     }
