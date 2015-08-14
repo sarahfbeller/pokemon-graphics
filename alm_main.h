@@ -41,7 +41,7 @@ class SimpleImage;
 #include "SimpleImage.h"
 #include "SimpleShaderProgram.h"
 #include "findGLUT.h"
-#include "draw_triangle.h"
+// #include "draw_triangle.h"
 #include "parser.h"
 
 
@@ -106,6 +106,11 @@ GLuint backImgID;
 
 static SimpleImage sceneIMG;
 GLuint sceneImgID;
+
+
+std::string curr_tex;
+GLuint textureID;
+static SimpleImage texture;
 
 
 struct Bone {

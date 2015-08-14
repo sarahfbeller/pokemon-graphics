@@ -14,6 +14,31 @@
 
 
 // ====================== Draw Scene Helpers ================= //
+// set up the texture settings
+void mtl_init (std::string& filename) {
+    
+    if (filename == "") return;
+
+    if (filename == curr_tex) 
+        return;           // attempt to improve efficiency, if desired text
+    else 
+        curr_tex = filename;                   // is already set, don't change it
+
+    texture = SimpleImage(filename);
+    
+    int w = texture.width();
+    int h = texture.height();
+
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, texture.data());
+    
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
 
 /* recursively draws each bone, then its children */
 void drawBone(struct Bone *bone) {
