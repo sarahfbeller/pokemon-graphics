@@ -219,7 +219,21 @@ void drawCharacter(){
                     Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
-                glVertex3f(v->x_val + x_position, v->y_val, v->z_val + z_position);
+
+				Bone *b = bones[v->bone_ind];
+				float[3][3] rot_mat = { { cos(b->angle), -sin(b->angle), 0 },
+										{ sin(b->angle), cos(b->angle), 0 },
+										{ 0, 0, 1 } };
+				float[3] new_coords = {0,0,0};
+				float[3] o_vec = { ((v->x_val + x_position) - b->start_x), ((v->y_val + y_position) - b->start_y), ((v->z_val + z_position) - b->stary_z) };
+				for (int i = 0; i < 3; i++) {
+					float val = 0;
+					for (int j = 0; j < 3; j++) {
+						val += rot_mat[i][j] * o_vec[j];
+					}
+					new_coords[i] = val;
+				}
+                glVertex3f(new_coords[0] + b->start_x, new_coords[1] + b->start_y, new_coords[2] + b->start_z);
 
                 // float x_transformed = transformX(v->x_val);
                 // float y_transformed = transformY(v->y_val);
@@ -250,7 +264,7 @@ void DrawingWrapper(){
     drawSky();
     drawWalls();
     // drawScene();
-    drawBone(bones[0]);
+    // drawBone(bones[0]);
     drawCharacter();
 }
 
@@ -307,58 +321,58 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
 /* First bone added must be root.
  * Currently makes torso, arms, legs, head, and ears. */
 void makeBones() {
-    // bones = std::vector<struct Bone *>();
+    bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
-    struct Bone *leftArm = new struct Bone;
-    struct Bone *rightArm = new struct Bone;
-    struct Bone *leftLeg = new struct Bone;
-    struct Bone *rightLeg = new struct Bone;
-    struct Bone *head = new struct Bone;
-    struct Bone *leftEar = new struct Bone;
-    struct Bone *rightEar = new struct Bone;
+    // struct Bone *leftArm = new struct Bone;
+    // struct Bone *rightArm = new struct Bone;
+    // struct Bone *leftLeg = new struct Bone;
+    // struct Bone *rightLeg = new struct Bone;
+    // struct Bone *head = new struct Bone;
+    // struct Bone *leftEar = new struct Bone;
+    // struct Bone *rightEar = new struct Bone;
 
     std::vector<struct Bone *> children;
-    children.push_back(leftArm);
-    children.push_back(rightArm);
-    children.push_back(head);
-    children.push_back(leftLeg);
-    children.push_back(rightLeg);
+    // children.push_back(leftArm);
+    // children.push_back(rightArm);
+    // children.push_back(head);
+    // children.push_back(leftLeg);
+    // children.push_back(rightLeg);
     // torso
-    float torsoLen = 1.6;
-    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.4, 0.4, 0.0, 0.0, 360.0, 
+    float torsoLen = 2.0;
+    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.5, 0.5, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, children);
 
     // head
-    children.clear();
-    children.push_back(leftEar);
-    children.push_back(rightEar);
-    makeBone(head, 0.0, 0.0, 0.0, 0.6, 0.6, 0.6, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
-    // arms
-    children.clear();
-    makeBone(leftArm, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
-    makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
-    // legs
-    makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
-    makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
-    // ears
-    makeBone(leftEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
-    makeBone(rightEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
-            0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
+    // children.clear();
+    // children.push_back(leftEar);
+    // children.push_back(rightEar);
+    // makeBone(head, 0.0, 0.0, 0.0, 0.6, 0.6, 0.6, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 0.0, -30.0, 30.0, children);
+    // // arms
+    // children.clear();
+    // makeBone(leftArm, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 120.0, 0.0, 180.0, children);
+    // makeBone(rightArm, 0.0, 0.0, 0.0, 0.2, 0.05, 0.05, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, -120.0, -18.0, 0.0, children);
+    // // legs
+    // makeBone(leftLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 160.0, 90.0, 180.0, children);
+    // makeBone(rightLeg, -1*torsoLen, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, -160.0, -90.0, -180.0, children);
+    // // ears
+    // makeBone(leftEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, 30.0, 15.0, 45.0, children);
+    // makeBone(rightEar, 0.0, 0.0, 0.0, 0.8, 0.2, 0.2, 0.0, 0.0, 0.0, 
+    //         0.0, 0.0, 0.0, -30.0, -45.0, -15.0, children);
 
     bones.push_back(torso);
-    bones.push_back(leftArm);
-    bones.push_back(rightArm);
-    bones.push_back(leftLeg);
-    bones.push_back(rightLeg);
-    bones.push_back(head);
-    bones.push_back(leftEar);
-    bones.push_back(rightEar);
+    // bones.push_back(leftArm);
+    // bones.push_back(rightArm);
+    // bones.push_back(leftLeg);
+    // bones.push_back(rightLeg);
+    // bones.push_back(head);
+    // bones.push_back(leftEar);
+    // bones.push_back(rightEar);
 }
 
 void SetupWrapper(){
@@ -420,10 +434,6 @@ void SetupWrapper(){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-
-    // makeBones();
-    // std::cout<<bones.size()<<std::endl;
-
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();
     SetupLighting();
@@ -431,6 +441,35 @@ void SetupWrapper(){
 }
 
 // =================== Animation Functions ================= //
+
+/* Sway */
+void sway() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0BodyAngle = 2.0;
+    float t1BodyAngle = -2.0;
+    float t2BodyAngle = 2.0;
+    float deltaAngle = 90.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0BodyAngle - currBodyRotation;
+    } else if (currTime >= t2) {
+        deltaAngle += t2BodyAngle - currBodyRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
+        }
+        deltaAngle += newAngle - currBodyRotation;
+    }
+    currBodyRotation += deltaAngle;
+    bones[TORSO]->angle_z = currBodyRotation;
+}
+
 /* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
 void walk() {
     float t0 = 0.0;
@@ -514,7 +553,7 @@ void DisplayCallback(){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, -10.f);
-    if (isWalking) walk();
+    if (isWalking) sway();
     DrawingWrapper();
     glutSwapBuffers();
 }
@@ -562,16 +601,23 @@ void KeyCallback(unsigned char key, int x, int y){
         break;    
     case 'f':
         facing_angle -= 8.f;
+        bones[TORSO]->x0 += .2f;
         break;
     case 's':
         facing_angle += 8.f;
+        bones[TORSO]->x0 -= .2f;
+        break;
     case 'e':
         z_position += .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->z0 += .5f * cos(pi * facing_angle/180.f);
         x_position += .5f * sin(pi * facing_angle/180.f);
+        bones[TORSO]->x0 += .5f * cos(pi * facing_angle/180.f);
         break;
     case 'x':
         z_position -= .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->x0 -= .5f * cos(pi * facing_angle/180.f);
         x_position -= .5f * sin(pi * facing_angle/180.f);
+        bones[TORSO]->x0 -= .5f * sin(pi * facing_angle/180.f);
         break;    
     case 'w':
         isWalking = !isWalking;
@@ -581,15 +627,21 @@ void KeyCallback(unsigned char key, int x, int y){
     // Reset Character Position
     case 'a':
         x_position = 1.0;
+        bones[TORSO]->x0 = 1.0;
         z_position = 1.0;
+        bones[TORSO]->z0 = 1.0;
     default:
         break;
     }
     z_position = fmax(z_position, -quad_size + 4.f);
     z_position = fmin(z_position, quad_size - 4.f);
+    bones[TORSO]->z0 = fmin(z_position, quad_size - 4.f);
+    bones[TORSO]->z0 = fmax(z_position, -quad_size + 4.f);
 
     x_position = fmax(x_position, -quad_size + 4.f);
     x_position = fmin(x_position, quad_size - 4.f);
+    bones[TORSO]->x0 = fmin(x_position, quad_size - 4.f);
+    bones[TORSO]->x0 = fmax(x_position, -quad_size + 4.f);
     glutPostRedisplay();
 }
 
