@@ -220,12 +220,12 @@ void drawCharacter(){
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
 
-				Bone *b = bones[v->bone_ind];
-				float[3][3] rot_mat = { { cos(b->angle), -sin(b->angle), 0 },
-										{ sin(b->angle), cos(b->angle), 0 },
+				Bone *b = bones[TORSO];
+				float rot_mat[3][3] = { { cos(b->angle_z), -sin(b->angle_z), 0 },
+										{ sin(b->angle_z), cos(b->angle_z), 0 },
 										{ 0, 0, 1 } };
-				float[3] new_coords = {0,0,0};
-				float[3] o_vec = { ((v->x_val + x_position) - b->start_x), ((v->y_val + y_position) - b->start_y), ((v->z_val + z_position) - b->stary_z) };
+				float new_coords[3] = {0,0,0};
+				float o_vec[3] = { ((v->x_val + x_position) - b->x0), ((v->y_val) - b->y0), ((v->z_val + z_position) - b->z0) };
 				for (int i = 0; i < 3; i++) {
 					float val = 0;
 					for (int j = 0; j < 3; j++) {
@@ -233,15 +233,9 @@ void drawCharacter(){
 					}
 					new_coords[i] = val;
 				}
-                glVertex3f(new_coords[0] + b->start_x, new_coords[1] + b->start_y, new_coords[2] + b->start_z);
-
-                // float x_transformed = transformX(v->x_val);
-                // float y_transformed = transformY(v->y_val);
-                // float z_transformed = transformZ(v->z_val);
-                // glVertex3f(x_transformed + x_position, y_transformed, z_transformed + z_position);
+                glVertex3f(new_coords[0] + b->x0, new_coords[1] + b->y0, new_coords[2] + b->z0);
             }
         glEnd();
-
     }
     // if(p->text){
     //     glDisable(GL_TEXTURE_2D);
