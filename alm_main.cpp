@@ -243,28 +243,36 @@ void drawCharacter(){
                     Normal * n = (p->cal_norm(p->obj_vertices[indices[0].v_ind], p->obj_vertices[indices[1].v_ind], p->obj_vertices[indices[2].v_ind]));
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
-
-				Bone *b = bones[TORSO];
-                float newDeg = (b->angle_z-90)*pi/180;
-				float rot_mat[3][3] = { { cos(newDeg), -sin(newDeg), 0 },
-										{ sin(newDeg), cos(newDeg), 0 },
-										{ 0, 0, 1 } };
-				float new_coords[3] = {0,0,0};
-				float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
-				for (int i = 0; i < 3; i++) {
-					float val = 0;
-					for (int j = 0; j < 3; j++) {
-						val += rot_mat[i][j] * o_vec[j];
-					}
-					new_coords[i] = val;
-				}
-        		glVertex3f(new_coords[0] + b->x0, new_coords[1] + b->y0, new_coords[2] + b->z0);
-                if(f == 0) {
-                    std::cout<<"==================="<<std::endl;
-                    std::cout<<b->x0<<" "<<b->z0<<std::endl;
-                    std::cout<<x_position<<" "<<z_position<<std::endl;
-                    std::cout<<new_coords[0] + b->x0<<" "<<new_coords[2] + b->z0<<std::endl;
+                
+                if (isWalking) {
+                    Bone *b = bones[TORSO];
+                    float newDeg = (b->angle_z-90)*pi/180;
+                    float rot_mat[3][3] = { { cos(newDeg), -sin(newDeg), 0 },
+                        { sin(newDeg), cos(newDeg), 0 },
+                        { 0, 0, 1 } };
+                    float new_coords[3] = {0,0,0};
+                    float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
+                    for (int i = 0; i < 3; i++) {
+                        float val = 0;
+                        for (int j = 0; j < 3; j++) {
+                            val += rot_mat[i][j] * o_vec[j];
+                        }
+                        new_coords[i] = val;
+                    }
+                    glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
+                    if(f == 0) {
+                        std::cout<<"==================="<<std::endl;
+                        std::cout<<b->x0<<" "<<b->z0<<std::endl;
+                        std::cout<<x_position<<" "<<z_position<<std::endl;
+                        std::cout<<new_coords[0] + b->x0<<" "<<new_coords[2] + b->z0<<std::endl;
+                    }
+                } else {
+                    
+                    glVertex3f(v->x_val + x_position,v->y_val, v->z_val + z_position);
                 }
+                 
+
+                
             }
         glEnd();
     }
