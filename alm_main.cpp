@@ -221,8 +221,9 @@ void drawCharacter(){
                 }
 
 				Bone *b = bones[TORSO];
-				float rot_mat[3][3] = { { cos(b->angle_z), -sin(b->angle_z), 0 },
-										{ sin(b->angle_z), cos(b->angle_z), 0 },
+                float newDeg = (b->angle_z-90)*pi/180;
+				float rot_mat[3][3] = { { cos(newDeg), -sin(newDeg), 0 },
+										{ sin(newDeg), cos(newDeg), 0 },
 										{ 0, 0, 1 } };
 				float new_coords[3] = {0,0,0};
 				float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
@@ -233,7 +234,13 @@ void drawCharacter(){
 					}
 					new_coords[i] = val;
 				}
-				glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
+              //   if(isWalking) {
+              //       std::cout<<"==================="<<std::endl;
+              //       std::cout<<b->angle_z<<std::endl;
+    		        // std::cout<<o_vec[0]<<" "<<o_vec[1]<<" "<<o_vec[2]<<std::endl;
+              //       std::cout<<new_coords[0]<<" "<<new_coords[1]<<" "<<new_coords[2]<<std::endl;
+              //   }
+        		glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
             }
         glEnd();
     }
@@ -331,7 +338,7 @@ void makeBones() {
     // children.push_back(rightLeg);
     // torso
     float torsoLen = 2.0;
-    makeBone(torso, 0.5, 0.25, 0.0, torsoLen, 0.5, 0.5, 0.0, 0.0, 360.0, 
+    makeBone(torso, x_position, 0, z_position, torsoLen, 0.5, 0.5, 0.0, 0.0, 360.0, 
             0.0, 0.0, 360.0, 90.0, 0.0, 360.0, children);
 
     // head
