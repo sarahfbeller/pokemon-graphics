@@ -500,8 +500,8 @@ void sway() {
 /* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
 void walk() {
     float t0 = 0.0;
-    float t1 = 1.0;
-    float t2 = 2.0;
+    float t1 = 0.5;
+    float t2 = 1.0;
     float t0LegAngle = -20.0;
     float t1LegAngle = 20.0;
     float t2LegAngle = -20.0;
@@ -628,23 +628,23 @@ void KeyCallback(unsigned char key, int x, int y){
         break;    
     case 'f':
         facing_angle -= 8.f;
-        bones[TORSO]->x0 += .2f;
+        bones[TORSO]->angle_y = facing_angle;
         break;
     case 's':
         facing_angle += 8.f;
-        bones[TORSO]->x0 -= .2f;
+        bones[TORSO]->angle_y = facing_angle;
         break;
     case 'e':
         z_position += .5f * cos(pi * facing_angle/180.f);
-        bones[TORSO]->z0 += .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->z0 = z_position;
         x_position += .5f * sin(pi * facing_angle/180.f);
-        bones[TORSO]->x0 += .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->x0 = x_position;
         break;
     case 'x':
         z_position -= .5f * cos(pi * facing_angle/180.f);
-        bones[TORSO]->x0 -= .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->x0 = z_position;
         x_position -= .5f * sin(pi * facing_angle/180.f);
-        bones[TORSO]->x0 -= .5f * sin(pi * facing_angle/180.f);
+        bones[TORSO]->x0 = x_position;
         break;    
     case 'w':
         isWalking = !isWalking;
@@ -654,21 +654,19 @@ void KeyCallback(unsigned char key, int x, int y){
     // Reset Character Position
     case 'a':
         x_position = 1.0;
-        bones[TORSO]->x0 = 1.0;
+        bones[TORSO]->x0 = x_position;
         z_position = 1.0;
-        bones[TORSO]->z0 = 1.0;
+        bones[TORSO]->z0 = z_position;
     default:
         break;
     }
     z_position = fmax(z_position, -quad_size + 4.f);
     z_position = fmin(z_position, quad_size - 4.f);
-    bones[TORSO]->z0 = fmin(z_position, quad_size - 4.f);
-    bones[TORSO]->z0 = fmax(z_position, -quad_size + 4.f);
+    bones[TORSO]->z0 = z_position;
 
     x_position = fmax(x_position, -quad_size + 4.f);
     x_position = fmin(x_position, quad_size - 4.f);
-    bones[TORSO]->x0 = fmin(x_position, quad_size - 4.f);
-    bones[TORSO]->x0 = fmax(x_position, -quad_size + 4.f);
+    bones[TORSO]->x0 = x_position;
     glutPostRedisplay();
 }
 
