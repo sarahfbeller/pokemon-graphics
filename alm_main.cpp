@@ -242,10 +242,8 @@ void drawCharacter(){
     // } else {
         shader1->UnBind();  
     // }
-
     glPopMatrix();
 }
-
 
 // ========================= Drawing Wrapper ================== //
 void DrawingWrapper(){
