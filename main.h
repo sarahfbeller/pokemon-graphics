@@ -129,6 +129,12 @@ std::vector<struct Bone *> bones; // bones[0] = root
 // globals for animation
 float dt = 0.01;
 float currTime = 0.0;
+float t0 = 0.0;
+float t1 = 1.0;
+float t2 = 2.0;
+float t0BodyAngle = 0.2;
+float t1BodyAngle = -0.2;
+float t2BodyAngle = 0.2;
 bool isWalking = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
