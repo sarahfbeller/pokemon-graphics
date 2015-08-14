@@ -39,7 +39,6 @@ void mtl_init (std::string& filename) {
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-
 /* recursively draws each bone, then its children */
 void drawBone(struct Bone *bone) {
     glPushMatrix();
@@ -265,7 +264,7 @@ void drawCharacter(){
     		        // std::cout<<o_vec[0]<<" "<<o_vec[1]<<" "<<o_vec[2]<<std::endl;
               //       std::cout<<new_coords[0]<<" "<<new_coords[1]<<" "<<new_coords[2]<<std::endl;
               //   }
-        		glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
+        		glVertex3f(new_coords[0] + b->x0, new_coords[1] + b->y0, new_coords[2] + b->z0);
             }
         glEnd();
     }
