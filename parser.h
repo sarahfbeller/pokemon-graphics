@@ -31,7 +31,6 @@ struct Vertex {
 	float x_val;
 	float y_val;
 	float z_val;
-	int bone_ind = 0;
 	Vertex(float x, float y, float z) { x_val = x; y_val = y; z_val = z; }
 	Vertex(float x, float y, float z, float nx, float ny, float nz) { x_val = x; y_val = y; z_val = z; }
 };
