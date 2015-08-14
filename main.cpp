@@ -11,13 +11,10 @@
 #include <cstdio>
 #include <cmath>
 
-
 // ====================== Draw Scene Helpers ================= //
 // set up the texture settings
 void mtl_init (std::string& filename) {
-    
     if (filename == "") return;
-
     if (filename == curr_tex) 
         return;           // attempt to improve efficiency, if desired text
     else 
@@ -158,7 +155,7 @@ void drawScene(){
     glScalef(1.0f, 1.0f, 1.0f);
 }
 
-// If selected (as is standard for now), draws walls as glRects rather than as
+// If selected (default), draws walls as glRects rather than as
 // rectangular prisms.
 void drawWalls(){
     glPushMatrix();
@@ -250,8 +247,6 @@ void drawCharacter(){
         }
     } */
     
-    
-    
     for(int f = 0; f < (p->obj_faces).size(); f++){
         Face cur_face = p->obj_faces.at(f);
         std::vector <Index> indices = cur_face.indices;
@@ -281,7 +276,6 @@ void drawCharacter(){
                 }
                 
                 if (isWalking) {
-                    
                     float new_coords[3] = {0,0,0};
                     float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
                     for (int i = 0; i < 3; i++) {
@@ -307,12 +301,8 @@ void drawCharacter(){
                         std::cout<<new_coords[0] + b->x0<<" "<<new_coords[2] + b->z0<<std::endl;
                     }
                 } else {
-                    
                     glVertex3f(v->x_val + x_position,v->y_val, v->z_val + z_position);
                 }
-                 
-
-                
             }
         glEnd();
     }
@@ -334,6 +324,7 @@ void DrawingWrapper(){
     drawWalls();
     // drawScene();
 
+    // Skeleton is invisible by default, but can be made visible if desired
     drawBone(bones[0]);
     drawCharacter();
 }
@@ -355,7 +346,6 @@ void SetupCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-1, 1, -1, 1, 1, 20);
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0.0, 0.0, 10.0,
@@ -368,8 +358,7 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
             float angle_x, float minAngle_x, float maxAngle_x,
             float angle_y, float minAngle_y, float maxAngle_y,
             float angle_z, float minAngle_z, float maxAngle_z,
-            std::vector<struct Bone *> children) 
-{
+            std::vector<struct Bone *> children) {
     bone->x0 = x0;
     bone->y0 = y0;
     bone->z0 = z0;
@@ -388,8 +377,8 @@ void makeBone(struct Bone *bone, float x0, float y0, float z0,
     bone->children = children;
 }
 
-/* First bone added must be root.
- * Currently makes torso, arms, legs, head, and ears. */
+// First bone added must be root.
+// Currently makes spine - see 3dPikachu.cpp for entire skeleton structure.
 void makeBones() {
     bones = std::vector<struct Bone *>();
     struct Bone *torso = new struct Bone;
@@ -462,14 +451,8 @@ void SetupWrapper(){
 
 // =================== Animation Functions ================= //
 
-/* Sway */
+/* Makes character sway back and forth perpendicular to direction of walking. */
 void sway() {
-    float t0 = 0.0;
-    float t1 = 1.0;
-    float t2 = 2.0;
-    float t0BodyAngle = 0.2;
-    float t1BodyAngle = -0.2;
-    float t2BodyAngle = 0.2;
     float deltaAngle = 0.0;
 
     if (currTime <= t0+dt) {
@@ -489,8 +472,6 @@ void sway() {
         deltaAngle += newAngle;
     }
     bones[TORSO]->angle_z += deltaAngle;
-    // std::cout<<"==================="<<std::endl;
-    // std::cout<<deltaAngle<<" "<<bones[TORSO]->angle_z<<std::endl;
     currTime += dt;
     glutPostRedisplay();
 }
@@ -508,11 +489,9 @@ void DisplayCallback(){
 
 void ReshapeCallback(int w, int h){
     glViewport(0, 0, w, h);
-
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     gluPerspective(30.0f, (float)w/(float)h, 0.1f, 100000.f);
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -639,9 +618,7 @@ int main(int argc, char** argv){
     glutInitWindowSize(640, 480);
     glutCreateWindow("Pokemon");
 
-    //
     // Initialize GLEW.
-    //
     #if !defined(__APPLE__) && !defined(__linux__)
         glewInit();
         if(!GLEW_VERSION_2_0) {
@@ -662,8 +639,8 @@ int main(int argc, char** argv){
     p = new Parser();
     p->load_file(input_file);
 
-    // If the Maya quad rendering option is selected (in drawingWrapper), this 
-    // is necessary
+    // If the Maya quad rendering option is selected (in drawingWrapper), 
+    // this is necessary
     q = new Parser();
     q->load_file("meshes/quad_all.obj");
 
@@ -672,7 +649,6 @@ int main(int argc, char** argv){
     glutReshapeFunc(ReshapeCallback);
     glutKeyboardFunc(KeyCallback);
     glutIdleFunc(DisplayCallback);
-
     glutMainLoop();
     return 0;
 }
