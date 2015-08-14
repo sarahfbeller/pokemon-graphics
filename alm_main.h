@@ -98,9 +98,11 @@ std::string sides_file_name = "meshes/Textures/left_quad.jpg";
 static SimpleImage sidesIMG;
 GLuint sidesImgID;
 
+std::string memchu_file_name = "meshes/Textures/memchu.jpg";
 static SimpleImage memchuIMG;
 GLuint memchuImgID;
 
+std::string back_file_name = "meshes/Textures/back_quad.jpg";
 static SimpleImage backIMG;
 GLuint backImgID;
 
@@ -139,11 +141,5 @@ float currTime = 0.0;
 bool isWalking = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
-float t0 = 0.0;
-float t1 = 0.15;
-float t2 = 0.3;
-float t0BodyAngle = 0.2;
-float t1BodyAngle = -0.2;
-float t2BodyAngle = 0.2;
 
 #endif // __MAIN_H__
