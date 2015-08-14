@@ -434,10 +434,6 @@ void SetupWrapper(){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, backIMG.data());
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-
-    // makeBones();
-    // std::cout<<bones.size()<<std::endl;
-
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     SetupCamera();
     SetupLighting();
@@ -445,6 +441,35 @@ void SetupWrapper(){
 }
 
 // =================== Animation Functions ================= //
+
+/* Sway */
+void sway() {
+    float t0 = 0.0;
+    float t1 = 1.0;
+    float t2 = 2.0;
+    float t0BodyAngle = 2.0;
+    float t1BodyAngle = -2.0;
+    float t2BodyAngle = 2.0;
+    float deltaAngle = 90.0;
+
+    if (currTime <= t0+dt) {
+        deltaAngle += t0BodyAngle - currBodyRotation;
+    } else if (currTime >= t2) {
+        deltaAngle += t2BodyAngle - currBodyRotation;
+        currTime = t0;
+    } else {
+        float newAngle = 0.0;
+        if (currTime < t1) {
+            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
+        } else if (currTime < t2) {
+            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
+        }
+        deltaAngle += newAngle - currBodyRotation;
+    }
+    currBodyRotation += deltaAngle;
+    bones[TORSO]->angle_z = currBodyRotation;
+}
+
 /* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
 void walk() {
     float t0 = 0.0;
@@ -528,7 +553,7 @@ void DisplayCallback(){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, -10.f);
-    if (isWalking) walk();
+    if (isWalking) sway();
     DrawingWrapper();
     glutSwapBuffers();
 }
@@ -583,17 +608,23 @@ void KeyCallback(unsigned char key, int x, int y){
     // Move Character
     case 's':
         x_position -= .2f;
+        bones[TORSO]->x0 -= .2f;
         break;
     case 'f':
         x_position += .2f;
+        bones[TORSO]->x0 += .2f;
         break;
     case 'e':
         z_position += .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->z0 += .5f * cos(pi * facing_angle/180.f);
         x_position += .5f * sin(pi * facing_angle/180.f);
+        bones[TORSO]->x0 += .5f * cos(pi * facing_angle/180.f);
         break;
     case 'x':
         z_position -= .5f * cos(pi * facing_angle/180.f);
+        bones[TORSO]->x0 -= .5f * cos(pi * facing_angle/180.f);
         x_position -= .5f * sin(pi * facing_angle/180.f);
+        bones[TORSO]->x0 -= .5f * sin(pi * facing_angle/180.f);
         break;    
     case 'w':
         isWalking = !isWalking;
@@ -603,15 +634,21 @@ void KeyCallback(unsigned char key, int x, int y){
     // Reset Character Position
     case 'a':
         x_position = 1.0;
+        bones[TORSO]->x0 = 1.0;
         z_position = 1.0;
+        bones[TORSO]->z0 = 1.0;
     default:
         break;
     }
     z_position = fmax(z_position, -quad_size + 4.f);
     z_position = fmin(z_position, quad_size - 4.f);
+    bones[TORSO]->z0 = fmin(z_position, quad_size - 4.f);
+    bones[TORSO]->z0 = fmax(z_position, -quad_size + 4.f);
 
     x_position = fmax(x_position, -quad_size + 4.f);
     x_position = fmin(x_position, quad_size - 4.f);
+    bones[TORSO]->x0 = fmin(x_position, quad_size - 4.f);
+    bones[TORSO]->x0 = fmax(x_position, -quad_size + 4.f);
     glutPostRedisplay();
 }
 
