@@ -223,37 +223,24 @@ void drawCharacter(){
     glRotatef(facing_angle, 0, 1, 0);
     glTranslatef(-x_position, 0, -z_position);
     Bone *b = bones[TORSO];
+
+    // convert degrees in bone angle to radians
     float newDeg_z = (b->angle_z-90)*pi/180;
-    float newDeg_y = facing_angle*pi/180;
-    float axis_rot[3] = {sin(newDeg_y), 0, cos(newDeg_y)}; 
-    float cos_val = cos(newDeg_z);
-    float sin_val = sin(newDeg_z);
-    float rot_mat[3][3] = { { cos_val+ axis_rot[0]*axis_rot[0]*(1-cos_val), axis_rot[0]*axis_rot[1]*(1-cos_val) -axis_rot[2]*sin_val, axis_rot[0]*axis_rot[2]*(1-cos_val) + axis_rot[1]*sin_val },
-                            { axis_rot[1]*axis_rot[0]*(1-cos_val) + axis_rot[2]*sin_val, cos_val + axis_rot[1]*axis_rot[1]*(1-cos_val), axis_rot[1]*axis_rot[2] * (1-cos_val) - axis_rot[0]*sin_val },
-                            { axis_rot[2]*axis_rot[0]*(1- cos_val) - axis_rot[1]*sin_val, axis_rot[2]*axis_rot[1]*(1-cos_val) + axis_rot[0]*sin_val, cos_val + axis_rot[2]*axis_rot[2]*(1-cos_val) } };
-    
-    /*float rot_mat_y[3][3] = {{cos(-newDeg_y), 0, sin(-newDeg_y)},
-        {0, 1, 0},
-        {-sin(-newDeg_y), 0, cos(-newDeg_y) } };
-    float rot_mat_y_inv[3][3] = {{cos(newDeg_y), 0, sin(newDeg_y)},
-        {0, 1, 0},
-        {-sin(newDeg_y), 0, cos(newDeg_y) } };
-    float rot_mat[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-    float valij = 0.f;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            valij = 0.f;
-            for (int k = 0; k < 3; k++) {
-                valij += rot_mat_y[i][k] * rot_mat_z[k][j];
-            }
-            rot_mat[i][j] = valij;
-        }
-    } */
-    
+
+    float cosval = cos(newDeg_z);
+    float sinval = sin(newDeg_z);
+
+    // rotation matrix about the axis of rotation calculated earlier of the bone angle
+    float rot_mat[3][3] = { {cosval, -sinval, 0},
+                            {sinval, cosval, 0},
+                            {0, 0, 1} };
+
+    // loop throug the faces
     for(int f = 0; f < (p->obj_faces).size(); f++){
         Face cur_face = p->obj_faces.at(f);
         std::vector <Index> indices = cur_face.indices;
 
+        // check if textures are provided in material file
         if(p->text && p->mat_map[cur_face.mat_id].texture != ""){
             mtl_init(p->mat_map[cur_face.mat_id].texture); 
         } else {
@@ -263,13 +250,18 @@ void drawCharacter(){
             character_shader->SetUniform("facing_angle", facing_angle);
         }
 
+        // draw face
         glBegin(GL_TRIANGLES);
             for (int i = 0; i < 3; i++){
                 Vertex * v = &p->obj_vertices[indices[i].v_ind];
+
+                // check if texture coordinates are provided
                 if (p->text) {
                     Texture * t = &p->obj_textures[indices[i].vt_ind];
                     glTexCoord2f(t->text_1, 1 - t->text_2);
                 }
+
+                // check if normals are provided, otherwise calculate it
                 if(p->norm){
                     Normal * n = &p->obj_normals[indices[i].vn_ind];
                     glNormal3f(n->n_x, n->n_y, n->n_z);    
@@ -278,9 +270,14 @@ void drawCharacter(){
                     glNormal3f(n->n_x, n->n_y, n->n_z);                    
                 }
                 
+                // check if currently being animated
                 if (isWalking) {
-                    float new_coords[3] = {0,0,0};
+                    float new_coords[3] = {0,0,0};  // coords to be used after rotation
+
+                    // vector about the origin
                     float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
+                    
+                    // matrix multiplication
                     for (int i = 0; i < 3; i++) {
                         float val = 0;
                         for (int j = 0; j < 3; j++) {
@@ -288,21 +285,10 @@ void drawCharacter(){
                         }
                         new_coords[i] = val;
                     }
-                    /*float new_coords[3] = {0,0,0};
-                    for (int i = 0; i < 3; i++) {
-                        float val = 0;
-                        for (int j = 0; j < 3; j++) {
-                            val += rot_mat_y_inv[i][j] * new_coords_old[j];
-                        }
-                        new_coords[i] = val;
-                    } */
+                    
+                    // draw vertex
                     glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
-                    if(f == 0) {
-                        std::cout<<"==================="<<std::endl;
-                        std::cout<<b->x0<<" "<<b->z0<<std::endl;
-                        std::cout<<x_position<<" "<<z_position<<std::endl;
-                        std::cout<<new_coords[0] + b->x0<<" "<<new_coords[2] + b->z0<<std::endl;
-                    }
+                    
                 } else {
                     glVertex3f(v->x_val + x_position,v->y_val, v->z_val + z_position);
                 }
