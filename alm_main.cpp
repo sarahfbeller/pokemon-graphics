@@ -258,13 +258,13 @@ void drawCharacter(){
 					}
 					new_coords[i] = val;
 				}
-              //   if(isWalking && f == 0) {
-              //       std::cout<<"==================="<<std::endl;
-              //       std::cout<<newDeg<<std::endl;
-    		        // std::cout<<o_vec[0]<<" "<<o_vec[1]<<" "<<o_vec[2]<<std::endl;
-              //       std::cout<<new_coords[0]<<" "<<new_coords[1]<<" "<<new_coords[2]<<std::endl;
-              //   }
-        		glVertex3f(new_coords[0] + b->x0 + 0, new_coords[1] + b->y0, new_coords[2] + b->z0);
+        		glVertex3f(new_coords[0] + b->x0, new_coords[1] + b->y0, new_coords[2] + b->z0);
+                if(f == 0) {
+                    std::cout<<"==================="<<std::endl;
+                    std::cout<<b->x0<<" "<<b->z0<<std::endl;
+                    std::cout<<x_position<<" "<<z_position<<std::endl;
+                    std::cout<<new_coords[0] + b->x0<<" "<<new_coords[2] + b->z0<<std::endl;
+                }
             }
         glEnd();
     }
