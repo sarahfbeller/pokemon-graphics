@@ -1,0 +1,20 @@
+Name: Pokemon Graphics (with 3D animation and scene texture mapping)
+
+Authors: 
+    Sarah Beller    (animation)
+    Erin Lavoie     (animation, parsers)
+    Amanda McNary   (parsers, scene rendering, character movement)
+
+Caveats:
+    Built to run on Mac Yosemite (and should work with Linux, but this is not officially supported); not compatible with Windows
+
+Instructions for Use:
+    1) run 'make', or 'make clean && make'
+    2) run './3dPokemon meshes/Pikachu.obj', or './3dPokemon meshes/Eevee.obj'
+    3) adjust camera using 'i' (zoom in) and 'u' (raise camera) opposing motions are ',' and 'o', respectively
+        *) can also adjust camera view using 'j' (left) and 'l' (right)
+    4) animate character using 'w' 
+    5) stop animation using 'w'
+    6) spin character using 's' and 'f'
+    7) move character forward and backwards using 'e' and 'x'
+    8) quit using 'q', or ctrl+c in terminal
