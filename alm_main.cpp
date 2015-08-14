@@ -234,9 +234,9 @@ void drawCharacter(){
 					}
 					new_coords[i] = val;
 				}
-              //   if(isWalking) {
+              //   if(isWalking && f == 0) {
               //       std::cout<<"==================="<<std::endl;
-              //       std::cout<<b->angle_z<<std::endl;
+              //       std::cout<<newDeg<<std::endl;
     		        // std::cout<<o_vec[0]<<" "<<o_vec[1]<<" "<<o_vec[2]<<std::endl;
               //       std::cout<<new_coords[0]<<" "<<new_coords[1]<<" "<<new_coords[2]<<std::endl;
               //   }
@@ -446,15 +446,15 @@ void sway() {
     float t0 = 0.0;
     float t1 = 1.0;
     float t2 = 2.0;
-    float t0BodyAngle = 2.0;
-    float t1BodyAngle = -2.0;
-    float t2BodyAngle = 2.0;
-    float deltaAngle = 90.0;
+    float t0BodyAngle = 0.2;
+    float t1BodyAngle = -0.2;
+    float t2BodyAngle = 0.2;
+    float deltaAngle = 0.0;
 
     if (currTime <= t0+dt) {
-        deltaAngle += t0BodyAngle - currBodyRotation;
+        deltaAngle += t0BodyAngle;
     } else if (currTime >= t2) {
-        deltaAngle += t2BodyAngle - currBodyRotation;
+        deltaAngle += t2BodyAngle;
         currTime = t0;
     } else {
         float newAngle = 0.0;
@@ -463,10 +463,13 @@ void sway() {
         } else if (currTime < t2) {
             newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
         }
-        deltaAngle += newAngle - currBodyRotation;
+        deltaAngle += newAngle;
     }
-    currBodyRotation += deltaAngle;
-    bones[TORSO]->angle_z = currBodyRotation;
+    bones[TORSO]->angle_z += deltaAngle;
+    // std::cout<<"==================="<<std::endl;
+    // std::cout<<deltaAngle<<" "<<bones[TORSO]->angle_z<<std::endl;
+    currTime += dt;
+    glutPostRedisplay();
 }
 
 /* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
