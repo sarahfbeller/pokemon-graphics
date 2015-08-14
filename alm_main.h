@@ -139,5 +139,11 @@ float currTime = 0.0;
 bool isWalking = false;
 float currBodyRotation = 0.0;
 float currHeadRotation = 0.0;
+float t0 = 0.0;
+float t1 = 0.15;
+float t2 = 0.3;
+float t0BodyAngle = 0.2;
+float t1BodyAngle = -0.2;
+float t2BodyAngle = 0.2;
 
 #endif // __MAIN_H__

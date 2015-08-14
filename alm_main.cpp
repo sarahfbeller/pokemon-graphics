@@ -214,8 +214,33 @@ void drawCharacter(){
     glTranslatef(x_position, 0, z_position);
     glRotatef(facing_angle, 0, 1, 0);
     glTranslatef(-x_position, 0, -z_position);
+    Bone *b = bones[TORSO];
+    float newDeg_z = (b->angle_z-90)*pi/180;
+    float newDeg_y = facing_angle*pi/180;
+    float rot_mat[3][3] = { { cos(newDeg_z), -sin(newDeg_z), 0 },
+        { sin(newDeg_z), cos(newDeg_z), 0 },
+        { 0, 0, 1 } };
     
-
+    /*float rot_mat_y[3][3] = {{cos(-newDeg_y), 0, sin(-newDeg_y)},
+        {0, 1, 0},
+        {-sin(-newDeg_y), 0, cos(-newDeg_y) } };
+    float rot_mat_y_inv[3][3] = {{cos(newDeg_y), 0, sin(newDeg_y)},
+        {0, 1, 0},
+        {-sin(newDeg_y), 0, cos(newDeg_y) } };
+    float rot_mat[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    float valij = 0.f;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            valij = 0.f;
+            for (int k = 0; k < 3; k++) {
+                valij += rot_mat_y[i][k] * rot_mat_z[k][j];
+            }
+            rot_mat[i][j] = valij;
+        }
+    } */
+    
+    
+    
     for(int f = 0; f < (p->obj_faces).size(); f++){
         Face cur_face = p->obj_faces.at(f);
         std::vector <Index> indices = cur_face.indices;
@@ -245,11 +270,7 @@ void drawCharacter(){
                 }
                 
                 if (isWalking) {
-                    Bone *b = bones[TORSO];
-                    float newDeg = (b->angle_z-90)*pi/180;
-                    float rot_mat[3][3] = { { cos(newDeg), -sin(newDeg), 0 },
-                        { sin(newDeg), cos(newDeg), 0 },
-                        { 0, 0, 1 } };
+                    
                     float new_coords[3] = {0,0,0};
                     float o_vec[3] = { ((v->x_val) - b->x0), ((v->y_val) - b->y0), ((v->z_val) - b->z0) };
                     for (int i = 0; i < 3; i++) {
@@ -259,6 +280,14 @@ void drawCharacter(){
                         }
                         new_coords[i] = val;
                     }
+                    /*float new_coords[3] = {0,0,0};
+                    for (int i = 0; i < 3; i++) {
+                        float val = 0;
+                        for (int j = 0; j < 3; j++) {
+                            val += rot_mat_y_inv[i][j] * new_coords_old[j];
+                        }
+                        new_coords[i] = val;
+                    } */
                     glVertex3f(new_coords[0] + b->x0 + x_position, new_coords[1] + b->y0, new_coords[2] + b->z0 + z_position);
                     if(f == 0) {
                         std::cout<<"==================="<<std::endl;
@@ -475,19 +504,15 @@ void SetupWrapper(){
 
 /* Sway */
 void sway() {
-    float t0 = 0.0;
-    float t1 = 1.0;
-    float t2 = 2.0;
-    float t0BodyAngle = 0.2;
-    float t1BodyAngle = -0.2;
-    float t2BodyAngle = 0.2;
     float deltaAngle = 0.0;
 
     if (currTime <= t0+dt) {
         deltaAngle += t0BodyAngle;
     } else if (currTime >= t2) {
-        deltaAngle += t2BodyAngle;
+        //deltaAngle += t2BodyAngle;
         currTime = t0;
+        bones[TORSO]->angle_z = 90.f;
+        deltaAngle = 0;
     } else {
         float newAngle = 0.0;
         if (currTime < t1) {
@@ -500,83 +525,6 @@ void sway() {
     bones[TORSO]->angle_z += deltaAngle;
     // std::cout<<"==================="<<std::endl;
     // std::cout<<deltaAngle<<" "<<bones[TORSO]->angle_z<<std::endl;
-    currTime += dt;
-    glutPostRedisplay();
-}
-
-/* Makes skeleton walk: legs move and body and head sway as Pikachu waddles. */
-void walk() {
-    float t0 = 0.0;
-    float t1 = 0.5;
-    float t2 = 1.0;
-    float t0LegAngle = -20.0;
-    float t1LegAngle = 20.0;
-    float t2LegAngle = -20.0;
-
-    float newAngle = 0.0;
-    if (currTime <= t0+dt) {
-        newAngle = t0LegAngle;
-    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
-        newAngle = t1LegAngle;
-    } else if (currTime >= t2) {
-        newAngle = t2LegAngle;
-        currTime = t0;
-    } else {
-        if (currTime < t1) {
-            newAngle = ((currTime/(t1-t0))*(t1LegAngle-t0LegAngle)) + t0LegAngle;
-        } else if (currTime < t2) {
-            newAngle = (((currTime-t1)/(t2-t1))*(t2LegAngle-t1LegAngle)) + t1LegAngle;
-        }
-    }
-    bones[LEFTLEG]->angle_y = newAngle;
-    bones[RIGHTLEG]->angle_y = -1*newAngle;
-
-    float t0BodyAngle = 2.0;
-    float t1BodyAngle = -2.0;
-    float t2BodyAngle = 2.0;
-    float deltaAngle = 90.0;
-
-    if (currTime <= t0+dt) {
-        deltaAngle += t0BodyAngle - currBodyRotation;
-    } else if (currTime >= t2) {
-        deltaAngle += t2BodyAngle - currBodyRotation;
-        currTime = t0;
-    } else {
-        float newAngle = 0.0;
-        if (currTime < t1) {
-            newAngle = ((currTime/(t1-t0))*(t1BodyAngle-t0BodyAngle)) + t0BodyAngle;
-        } else if (currTime < t2) {
-            newAngle = (((currTime-t1)/(t2-t1))*(t2BodyAngle-t1BodyAngle)) + t1BodyAngle;
-        }
-        deltaAngle += newAngle - currBodyRotation;
-    }
-    currBodyRotation += deltaAngle;
-    bones[TORSO]->angle_z = currBodyRotation;
-
-    float t0HeadAngle = 5.0;
-    float t1HeadAngle = -5.0;
-    float t2HeadAngle = 5.0;
-    deltaAngle = 0.0;
-
-    if (currTime <= t0+dt) {
-        deltaAngle += t0HeadAngle - currHeadRotation;
-    } else if (currTime >= t1-(dt/2) && currTime <= t1+(dt/2)) {
-        deltaAngle += t1HeadAngle - currHeadRotation;
-    }else if (currTime >= t2) {
-        deltaAngle += t2HeadAngle - currHeadRotation;
-        currTime = t0;
-    } else {
-        float newAngle = 0.0;
-        if (currTime <= t1) {
-            newAngle = ((currTime/(t1-t0))*(t1HeadAngle-t0HeadAngle)) + t0HeadAngle;
-        } else if (currTime < t2) {
-            newAngle = (((currTime-t1)/(t2-t1))*(t2HeadAngle-t1HeadAngle)) + t1HeadAngle;
-        }
-        deltaAngle += newAngle - currHeadRotation;
-    }
-    currHeadRotation += deltaAngle;
-    bones[HEAD]->angle_z = currHeadRotation;
-
     currTime += dt;
     glutPostRedisplay();
 }
@@ -656,6 +604,7 @@ void KeyCallback(unsigned char key, int x, int y){
     case 'w':
         isWalking = !isWalking;
         currTime = 0.0;
+        bones[TORSO]->angle_z = 90.0;
         break;
 
     // Reset Character Position
